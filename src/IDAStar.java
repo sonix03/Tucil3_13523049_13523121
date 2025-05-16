@@ -53,6 +53,60 @@ public class IDAStar implements Solver {
         }
     }
 
+    @Override
+    public List<Board> solveAndReturnPath(Board start) {
+    nodesExpanded = 0;
+
+    int bound = Heuristic.calculate(start, heuristicType); // Batas awal f-cost (heuristik start)
+    Path solutionPath = null;
+
+    System.out.println("IDA* dengan heuristik " + getHeuristicName(heuristicType));
+
+    while (solutionPath == null) {
+        System.out.println("Menjelajah dengan batas f-cost: " + bound);
+        maxDepthReachedInIteration = 0; // Reset batas iterasi baru
+
+        SearchResult result = search(start, 0, bound, new ArrayList<>(), null, '\0', '\0');
+        nodesExpanded += result.nodesInThisPath;
+
+        if (result.isGoal) {
+            solutionPath = result.path;
+            break;
+        }
+        if (result.nextBound == Integer.MAX_VALUE) {
+            System.out.println("Tidak ada batas berikutnya, solusi tidak ditemukan.");
+            break; // Tidak ada solusi
+        }
+
+        bound = result.nextBound;
+
+        if (bound == result.previousBound && result.nextBound > result.previousBound) {
+            // Penanganan jika terjebak (opsional)
+        }
+    }
+
+    if (solutionPath == null) {
+        System.out.println("Tidak ditemukan solusi!");
+        System.out.println("Total Node yang dieksplorasi (hingga pencarian terakhir): " + nodesExpanded);
+        return new ArrayList<>();
+    }
+
+    // Kumpulkan langkah solusi dari Path ke List<Board>
+    List<Board> pathBoards = new ArrayList<>();
+    Path current = solutionPath;
+    while (current != null) {
+        pathBoards.add(current.board);
+        current = current.parent;
+    }
+    Collections.reverse(pathBoards);
+
+    System.out.println("Solusi ditemukan dalam " + (pathBoards.size() - 1) + " langkah.");
+    System.out.println("Total Node yang dieksplorasi: " + nodesExpanded);
+
+    return pathBoards;
+}
+
+
     // ArrayList<String> pathStates untuk melacak state dalam path saat ini untuk menghindari siklus
     private SearchResult search(Board currentBoard, int gCost, int currentBound, List<String> currentPathStates, Path parentPathNode, char pieceMoved, char moveDir) {
         int hCost = Heuristic.calculate(currentBoard, heuristicType);

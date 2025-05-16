@@ -1,7 +1,7 @@
 import java.io.File;
 import java.io.IOException;
-import java.util.Scanner;
-import java.util.InputMismatchException; // Import untuk menangani input yang bukan integer
+import java.util.InputMismatchException;
+import java.util.Scanner; // Import untuk menangani input yang bukan integer
 
 /**
  * Main class untuk menjalankan sliding block puzzle solver
@@ -9,21 +9,21 @@ import java.util.InputMismatchException; // Import untuk menangani input yang bu
  */
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in); // Pindahkan deklarasi scanner ke luar try-catch agar bisa di-close di finally
+        Scanner scanner = new Scanner(System.in);
 
         try {
             // Input nama file dari user
-            // System.out.print("Masukkan nama file input (contoh: input1.txt): ");
-            // String filename = scanner.nextLine();
-
-            String filePath = "test/input5.txt"; // Default file path
+            
+            System.out.print("Masukkan nama file (test/): ");
+            String filePath = "test/" + scanner.nextLine();
+            
 
             if (args.length > 0) {
                 filePath = args[0];
             }
 
             File file = new File(filePath);
-            Board board = new Board(file); // Asumsikan constructor Board(File) melempar IOException jika file tidak ada/salah format
+            Board board = new Board(file); 
 
             System.out.println("Board awal:");
             board.print();
@@ -87,7 +87,6 @@ public class Main {
                     System.out.println(); // Beri jarak
                 }
 
-                // Menggunakan heuristicChoice - 1 karena biasanya array/list dimulai dari indeks 0
                 int heuristicIndex = heuristicChoice - 1;
 
                 switch (algoChoice) {

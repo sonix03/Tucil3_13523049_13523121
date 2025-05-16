@@ -74,6 +74,78 @@ public class AStar implements Solver {
             System.out.println("Tidak ditemukan solusi!");
         }
     }
+
+    @Override
+public List<Board> solveAndReturnPath(Board start) {
+    nodesExpanded = 0;
+
+    PriorityQueue<Node> openSet = new PriorityQueue<>();
+    Set<String> closedSet = new HashSet<>();
+    Map<String, Integer> bestCost = new HashMap<>();
+
+    int h = Heuristic.calculate(start, heuristicType);
+    Node startNode = new Node(start, null, '\0', '\0', 0, h);
+    openSet.add(startNode);
+    String startKey = getBoardKey(start);
+    bestCost.put(startKey, 0);
+
+    Node solution = null;
+
+    while (!openSet.isEmpty()) {
+        Node current = openSet.poll();
+        nodesExpanded++;
+
+        if (isGoalState(current.board)) {
+            solution = current;
+            break;
+        }
+
+        String boardKey = getBoardKey(current.board);
+        if (closedSet.contains(boardKey)) {
+            continue;
+        }
+        closedSet.add(boardKey);
+
+        for (Piece piece : current.board.pieces) {
+            for (char dir : priorityDirs) {
+                if (canMove(current.board, piece.name, dir)) {
+                    Board newBoard = move(current.board, piece.name, dir);
+                    String newBoardKey = getBoardKey(newBoard);
+                    int newG = current.g + 1;
+
+                    if (!closedSet.contains(newBoardKey) &&
+                        (!bestCost.containsKey(newBoardKey) || newG < bestCost.get(newBoardKey))) {
+
+                        bestCost.put(newBoardKey, newG);
+                        int newH = Heuristic.calculate(newBoard, heuristicType);
+                        Node neighbor = new Node(newBoard, current, piece.name, dir, newG, newH);
+                        openSet.add(neighbor);
+                    }
+                }
+            }
+        }
+    }
+
+    if (solution == null) {
+        System.out.println("Tidak ditemukan solusi!");
+        return new ArrayList<>(); // return list kosong jika gagal
+    }
+
+    // Traceback path dari solusi ke awal
+    List<Board> path = new ArrayList<>();
+    Node current = solution;
+    while (current != null) {
+        path.add(current.board);
+        current = current.parent;
+    }
+    Collections.reverse(path); // agar urut dari awal ke solusi
+
+    System.out.println("Solusi ditemukan dalam " + (path.size() - 1) + " langkah.");
+    System.out.println("Node yang dieksplorasi: " + nodesExpanded);
+
+    return path;
+}
+
     
     private boolean isGoalState(Board board) {
         if (board.primaryPiece == null || board.exitRow == -1) return false; // Guard clause
