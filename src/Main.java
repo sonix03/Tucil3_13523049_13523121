@@ -13,10 +13,10 @@ public class Main {
             Scanner scanner = new Scanner(System.in);
 
             // Input nama file dari user
-            System.out.print("Masukkan nama file input (contoh: input1.txt): ");
-            String filename = scanner.nextLine();
+            // System.out.print("Masukkan nama file input (contoh: input1.txt): ");
+            // String filename = scanner.nextLine();
 
-            String filePath = "test/" + filename;
+            String filePath = "test/" + "input3.txt";
 
             if (args.length > 0) {
                 filePath = args[0];
