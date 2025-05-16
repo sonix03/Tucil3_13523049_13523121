@@ -46,7 +46,7 @@ public class Main {
                 System.out.println("1. Manhattan Distance");
                 System.out.println("2. Euclidean Distance");
                 System.out.println("3. Obstacle-aware Distance");
-                System.out.print("Pilihan Anda (0-2): ");
+                System.out.print("Pilihan Anda (1-3): ");
                 heuristic = scanner.nextInt();
 
                 switch (algoChoice) {
