@@ -1,9 +1,9 @@
 # Tucil3_13523049_13523121
 
 ## Cara Run Program
-# Windows
+### Windows
 ./runGUI.bat
-# Mac
+### Mac
 ./runGUI.sh
 
 ## masalah Sekarang
