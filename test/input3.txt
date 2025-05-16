@@ -3,6 +3,6 @@
 AA..F.
 BBP.F.
 ..P.F.
-CCDDF.
+CCDD..
 .EE...
   K   

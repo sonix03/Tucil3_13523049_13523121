@@ -12,6 +12,6 @@ DD atau DDD = bisa gerak vertikal harusnya gaboleh
 D        D    
 D  atau  D    -> bisa gerak horizotal harusnya gaboleh
          D
-
+(udah fixxx)
 
 2. blom handle test yang salah (udah di fix)

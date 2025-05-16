@@ -1,19 +1,14 @@
-import java.util.*;
+ // Sesuaikan dengan struktur package Anda jika ada
+ 
+ import java.util.*;
 
-/**
- * Implementasi algoritma Greedy Best First Search (GBFS)
- * Algoritma ini menggunakan heuristik (h) saja tanpa memperhitungkan cost sejauh ini
- * untuk menemukan jalur dengan perkiraan jarak tujuan terdekat
- */
 public class GBFS implements Solver {
-    // Prioritas gerakan berdasarkan arah
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
     private int heuristicType;
     private int nodesExpanded;
     
     public GBFS() {
-        // Default heuristic is Manhattan distance
-        this.heuristicType = 0;
+        this.heuristicType = 0; // Default Manhattan
     }
     
     public GBFS(int heuristicType) {
@@ -24,12 +19,9 @@ public class GBFS implements Solver {
     public void solve(Board start) {
         nodesExpanded = 0;
         
-        // Buat priority queue berdasarkan nilai heuristik (h) saja
         PriorityQueue<Node> openSet = new PriorityQueue<>();
-        // Set untuk menyimpan state yang sudah dikunjungi
         Set<String> closedSet = new HashSet<>();
         
-        // Node awal
         int h = Heuristic.calculate(start, heuristicType);
         Node startNode = new Node(start, null, '\0', '\0', h);
         openSet.add(startNode);
@@ -43,7 +35,6 @@ public class GBFS implements Solver {
             Node current = openSet.poll();
             nodesExpanded++;
             
-            // Cek apakah sudah mencapai tujuan
             if (isGoalState(current.board)) {
                 solution = current;
                 break;
@@ -51,14 +42,11 @@ public class GBFS implements Solver {
             
             String boardKey = getBoardKey(current.board);
             
-            // Skip jika state ini sudah diproses
             if (closedSet.contains(boardKey)) {
                 continue;
             }
-            
             closedSet.add(boardKey);
             
-            // Coba semua gerakan yang mungkin untuk setiap bidak
             for (Piece piece : current.board.pieces) {
                 for (char dir : priorityDirs) {
                     if (canMove(current.board, piece.name, dir)) {
@@ -75,7 +63,6 @@ public class GBFS implements Solver {
             }
         }
         
-        // Rekonstruksi dan cetak solusi
         if (solution != null) {
             printSolution(solution);
             System.out.println("Node yang dieksplorasi: " + nodesExpanded);
@@ -85,9 +72,8 @@ public class GBFS implements Solver {
     }
     
     private boolean isGoalState(Board board) {
-        // Tujuan tercapai jika primary piece (P) berdekatan dengan exit (K)
+        if (board.primaryPiece == null || board.exitRow == -1) return false;
         for (int[] cell : board.primaryPiece.cells) {
-            // Cek di kiri, kanan, atas, dan bawah lokasi K
             if ((cell[0] == board.exitRow && Math.abs(cell[1] - board.exitCol) == 1) ||
                 (cell[1] == board.exitCol && Math.abs(cell[0] - board.exitRow) == 1)) {
                 return true;
@@ -109,19 +95,13 @@ public class GBFS implements Solver {
     private void printSolution(Node path) {
         List<Node> steps = new ArrayList<>();
         Node current = path;
-        
-        // Rekonstruksi jalur dari goal ke start
         while (current != null) {
-            if (current.piece != '\0') { // Skip start node
+            if (current.piece != '\0') {
                 steps.add(current);
             }
             current = current.parent;
         }
-        
-        // Balik urutan untuk mendapatkan jalur dari start ke goal
         Collections.reverse(steps);
-        
-        // Print jalur
         int step = 1;
         for (Node node : steps) {
             System.out.println("Gerakan " + step + ": " + node.piece + "-" + getDirName(node.direction) + 
@@ -130,7 +110,6 @@ public class GBFS implements Solver {
             System.out.println();
             step++;
         }
-        
         System.out.println("Solusi ditemukan dalam " + (steps.size()) + " langkah.");
     }
     
@@ -144,63 +123,76 @@ public class GBFS implements Solver {
         };
     }
     
+    // --- METODE CANMOVE YANG DIMODIFIKASI ---
     private boolean canMove(Board board, char pieceName, char dir) {
-        Piece piece = null;
+        Piece pieceToMove = null;
         for (Piece p : board.pieces) {
             if (p.name == pieceName) {
-                piece = p;
+                pieceToMove = p;
                 break;
             }
         }
+
+        if (pieceToMove == null || pieceToMove.cells.isEmpty()) {
+            return false;
+        }
         
-        if (piece == null) return false;
-        
-        // Cek apakah bisa bergerak ke arah yang diinginkan
-        for (int[] cell : piece.cells) {
+        PieceOrientation orientation = pieceToMove.getOrientation();
+
+        if (orientation == PieceOrientation.HORIZONTAL) {
+            if (dir == 'U' || dir == 'D') {
+                return false;
+            }
+        } else if (orientation == PieceOrientation.VERTICAL) {
+            if (dir == 'L' || dir == 'R') {
+                return false;
+            }
+        }
+
+        for (int[] cell : pieceToMove.cells) {
             int newRow = cell[0];
             int newCol = cell[1];
-            
             switch (dir) {
                 case 'L' -> newCol--;
                 case 'R' -> newCol++;
                 case 'U' -> newRow--;
                 case 'D' -> newRow++;
             }
-            
-            // Cek apakah posisi baru valid
             if (newRow < 0 || newRow >= board.rows || newCol < 0 || newCol >= board.cols) {
                 return false;
             }
-            
-            // Cek apakah posisi baru kosong atau milik piece yang sama
-            char cellContent = board.grid[newRow][newCol];
-            if (cellContent != '.' && cellContent != 'K' && cellContent != pieceName) {
+            char destinationCellContent = board.grid[newRow][newCol];
+            boolean partOfItself = false;
+            for(int[] ownCell : pieceToMove.cells){
+                if(ownCell[0] == newRow && ownCell[1] == newCol){
+                    partOfItself = true;
+                    break;
+                }
+            }
+            if (destinationCellContent != '.' && destinationCellContent != 'K' && !partOfItself) {
                 return false;
             }
         }
-        
         return true;
     }
+    // --- AKHIR METODE CANMOVE ---
     
     private Board move(Board board, char pieceName, char dir) {
         Board newBoard = board.clone();
-        Piece target = null;
-        for (Piece p : newBoard.pieces) {
-            if (p.name == pieceName) {
-                target = p;
+        Piece targetPieceInNewBoard = null;
+        for(Piece p : newBoard.pieces){
+            if(p.name == pieceName){
+                targetPieceInNewBoard = p;
                 break;
             }
         }
+
+        if (targetPieceInNewBoard == null) return newBoard;
         
-        if (target == null) return newBoard;
-        
-        // bersihkan posisi lama
-        for (int[] cell : target.cells) {
+        for (int[] cell : targetPieceInNewBoard.cells) {
             newBoard.grid[cell[0]][cell[1]] = '.';
         }
-        
-        // geser posisi
-        for (int[] cell : target.cells) {
+        for (int[] cell : targetPieceInNewBoard.cells) {
             switch (dir) {
                 case 'L' -> cell[1]--;
                 case 'R' -> cell[1]++;
@@ -208,22 +200,21 @@ public class GBFS implements Solver {
                 case 'D' -> cell[0]++;
             }
         }
-        
-        // isi posisi baru
-        for (int[] cell : target.cells) {
+        for (int[] cell : targetPieceInNewBoard.cells) {
             newBoard.grid[cell[0]][cell[1]] = pieceName;
         }
-        
+        if (pieceName == 'P') {
+            newBoard.primaryPiece = targetPieceInNewBoard;
+        }
         return newBoard;
     }
     
-    // Class untuk node dalam pencarian GBFS
     private static class Node implements Comparable<Node> {
         Board board;
         Node parent;
         char piece;
         char direction;
-        int h;  // heuristic value
+        int h;
         
         public Node(Board board, Node parent, char piece, char direction, int h) {
             this.board = board;
