@@ -1,21 +1,47 @@
 import java.util.*;
 
+/**
+ * Implementasi algoritma Greedy Best First Search (GBFS)
+ * Algoritma ini menggunakan heuristik (h) saja tanpa memperhitungkan cost sejauh ini
+ * untuk menemukan jalur dengan perkiraan jarak tujuan terdekat
+ */
 public class GBFS implements Solver {
     // Prioritas gerakan berdasarkan arah
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
+    private int heuristicType;
+    private int nodesExpanded;
     
+    public GBFS() {
+        // Default heuristic is Manhattan distance
+        this.heuristicType = 0;
+    }
+    
+    public GBFS(int heuristicType) {
+        this.heuristicType = heuristicType;
+    }
+    
+    @Override
     public void solve(Board start) {
-        PriorityQueue<Node> openSet = new PriorityQueue<>();
-        Set<String> closedSet = new HashSet<>();
-        Map<String, Node> cameFrom = new HashMap<>();
+        nodesExpanded = 0;
         
-        Node startNode = new Node(start, null, '\0', '\0', 0);
+        // Buat priority queue berdasarkan nilai heuristik (h) saja
+        PriorityQueue<Node> openSet = new PriorityQueue<>();
+        // Set untuk menyimpan state yang sudah dikunjungi
+        Set<String> closedSet = new HashSet<>();
+        
+        // Node awal
+        int h = Heuristic.calculate(start, heuristicType);
+        Node startNode = new Node(start, null, '\0', '\0', h);
         openSet.add(startNode);
+        
+        System.out.println("Greedy Best First Search dengan heuristik " + 
+                          Heuristic.getName(heuristicType));
         
         Node solution = null;
         
         while (!openSet.isEmpty()) {
             Node current = openSet.poll();
+            nodesExpanded++;
             
             // Cek apakah sudah mencapai tujuan
             if (isGoalState(current.board)) {
@@ -24,6 +50,8 @@ public class GBFS implements Solver {
             }
             
             String boardKey = getBoardKey(current.board);
+            
+            // Skip jika state ini sudah diproses
             if (closedSet.contains(boardKey)) {
                 continue;
             }
@@ -38,20 +66,19 @@ public class GBFS implements Solver {
                         String newBoardKey = getBoardKey(newBoard);
                         
                         if (!closedSet.contains(newBoardKey)) {
-                            int cost = calculateHeuristic(newBoard);
-                            Node neighbor = new Node(newBoard, current, piece.name, dir, cost);
+                            int newH = Heuristic.calculate(newBoard, heuristicType);
+                            Node neighbor = new Node(newBoard, current, piece.name, dir, newH);
                             openSet.add(neighbor);
-                            cameFrom.put(newBoardKey, current);
                         }
                     }
                 }
             }
         }
         
-        // Rekonstruksi jalur solusi
+        // Rekonstruksi dan cetak solusi
         if (solution != null) {
-            List<Node> path = reconstructPath(solution);
-            printSolution(path);
+            printSolution(solution);
+            System.out.println("Node yang dieksplorasi: " + nodesExpanded);
         } else {
             System.out.println("Tidak ditemukan solusi!");
         }
@@ -69,18 +96,6 @@ public class GBFS implements Solver {
         return false;
     }
     
-    private int calculateHeuristic(Board board) {
-        // Hitung jarak Manhattan terdekat dari primary piece ke exit
-        int minDistance = Integer.MAX_VALUE;
-        
-        for (int[] cell : board.primaryPiece.cells) {
-            int distance = Math.abs(cell[0] - board.exitRow) + Math.abs(cell[1] - board.exitCol);
-            minDistance = Math.min(minDistance, distance);
-        }
-        
-        return minDistance;
-    }
-    
     private String getBoardKey(Board board) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < board.rows; i++) {
@@ -91,29 +106,32 @@ public class GBFS implements Solver {
         return sb.toString();
     }
     
-    private List<Node> reconstructPath(Node goal) {
-        List<Node> path = new ArrayList<>();
-        Node current = goal;
+    private void printSolution(Node path) {
+        List<Node> steps = new ArrayList<>();
+        Node current = path;
         
+        // Rekonstruksi jalur dari goal ke start
         while (current != null) {
-            if (current.piece != '\0') { // Skip start node yang tidak memiliki gerakan
-                path.add(current);
+            if (current.piece != '\0') { // Skip start node
+                steps.add(current);
             }
             current = current.parent;
         }
         
-        Collections.reverse(path);
-        return path;
-    }
-    
-    private void printSolution(List<Node> path) {
+        // Balik urutan untuk mendapatkan jalur dari start ke goal
+        Collections.reverse(steps);
+        
+        // Print jalur
         int step = 1;
-        for (Node node : path) {
-            System.out.println("Gerakan " + step + ": " + node.piece + "-" + getDirName(node.direction));
+        for (Node node : steps) {
+            System.out.println("Gerakan " + step + ": " + node.piece + "-" + getDirName(node.direction) + 
+                              " (h=" + node.h + ")");
             node.board.print();
             System.out.println();
             step++;
         }
+        
+        System.out.println("Solusi ditemukan dalam " + (steps.size()) + " langkah.");
     }
     
     private String getDirName(char d) {
@@ -205,19 +223,19 @@ public class GBFS implements Solver {
         Node parent;
         char piece;
         char direction;
-        int cost;
+        int h;  // heuristic value
         
-        public Node(Board board, Node parent, char piece, char direction, int cost) {
+        public Node(Board board, Node parent, char piece, char direction, int h) {
             this.board = board;
             this.parent = parent;
             this.piece = piece;
             this.direction = direction;
-            this.cost = cost;
+            this.h = h;
         }
         
         @Override
         public int compareTo(Node other) {
-            return Integer.compare(this.cost, other.cost);
+            return Integer.compare(this.h, other.h);
         }
     }
 }
