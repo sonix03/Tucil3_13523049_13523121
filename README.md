@@ -14,4 +14,4 @@ D  atau  D    -> bisa gerak horizotal harusnya gaboleh
          D
 
 
-2. blom handle test yang salah
+2. blom handle test yang salah (udah di fix)
