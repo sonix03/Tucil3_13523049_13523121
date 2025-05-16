@@ -16,7 +16,7 @@ public class Main {
             // System.out.print("Masukkan nama file input (contoh: input1.txt): ");
             // String filename = scanner.nextLine();
 
-            String filePath = "test/input1.txt"; // Default file path
+            String filePath = "test/input5.txt"; // Default file path
 
             if (args.length > 0) {
                 filePath = args[0];
