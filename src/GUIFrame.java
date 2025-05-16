@@ -21,6 +21,9 @@ public class GUIFrame extends JFrame {
         initBoardPanel();
         initBottomPanel();
 
+        int initialIdx = algoCombo.getSelectedIndex();
+        heuristicCombo.setEnabled(initialIdx != 1);
+
         setVisible(true);
     }
 
@@ -32,11 +35,11 @@ public class GUIFrame extends JFrame {
         heuristicCombo = new JComboBox<>(new String[]{"Manhattan", "Euclidean", "Obstacle-aware"});
         JButton runButton = new JButton("Jalankan");
 
-        heuristicCombo.setEnabled(false); // Default: UCS tidak butuh heuristic
+        heuristicCombo.setEnabled(false);
 
         algoCombo.addActionListener(e -> {
             int idx = algoCombo.getSelectedIndex();
-            heuristicCombo.setEnabled(idx != 1); // UCS = index 1
+            heuristicCombo.setEnabled(idx != 1); 
         });
 
         fileButton.addActionListener(e -> {
@@ -120,8 +123,14 @@ public class GUIFrame extends JFrame {
         List<Board> path = solver.solveAndReturnPath(boardCopy);
         long end = System.currentTimeMillis();
 
+        if (path == null || path.size() <= 1) {
+            JOptionPane.showMessageDialog(this, "Tidak ditemukan solusi.");
+            statusLabel.setText("Solusi tidak ditemukan.");
+            return;
+        }
+        
         statusLabel.setText(algoName + " selesai dalam " + (end - start) + " ms, langkah: " + (path.size() - 1));
-
         new AnimationManager(path, boardPanel).start();
+        
     }
 }
