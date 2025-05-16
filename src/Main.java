@@ -9,8 +9,14 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         try {
-            // Default file path
-            String filePath = "test/input1.txt";
+            
+            Scanner scanner = new Scanner(System.in);
+
+            // Input nama file dari user
+            System.out.print("Masukkan nama file input (contoh: input1.txt): ");
+            String filename = scanner.nextLine();
+
+            String filePath = "test/" + filename;
 
             if (args.length > 0) {
                 filePath = args[0];
@@ -22,8 +28,6 @@ public class Main {
             System.out.println("Board awal:");
             board.print();
             System.out.println();
-
-            Scanner scanner = new Scanner(System.in);
 
             System.out.println("Pilih algoritma:");
             System.out.println("1. Greedy Best First Search (GBFS)");
