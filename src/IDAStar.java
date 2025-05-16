@@ -130,14 +130,14 @@ public class IDAStar implements Solver {
         }
         Collections.reverse(steps);
         int step = 1;
-        System.out.println("Solusi ditemukan dalam " + steps.size() + " langkah.");
         for (Path node : steps) {
             System.out.println("Gerakan " + step + ": " + node.piece + "-" + getDirName(node.direction) + 
-                              " (g=" + node.g + ", h=" + node.h + ", f=" + (node.g + node.h) + ")");
+            " (g=" + node.g + ", h=" + node.h + ", f=" + (node.g + node.h) + ")");
             node.board.print();
             System.out.println();
             step++;
         }
+        System.out.println("Solusi ditemukan dalam " + steps.size() + " langkah.");
     }
     
     private String getDirName(char d) {
