@@ -1,8 +1,8 @@
 6 6
 10
-AA..FF
-BBP.FF
-..P...
-CCDD..
+AA..F.
+BBP.F.
+..P.F.
+CCDDF.
 .EE...
   K   
