@@ -19,45 +19,52 @@ public class Board {
 
     public Board(File file) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(file));
-
+    
         String[] size = br.readLine().trim().split(" ");
         rows = Integer.parseInt(size[0]);
         cols = Integer.parseInt(size[1]);
-
-        // Tidak digunakan secara langsung, tapi dibaca dari file
+    
         @SuppressWarnings("unused")
         int nPiece = Integer.parseInt(br.readLine().trim());
-
+    
         grid = new char[rows][cols];
         pieces = new ArrayList<>();
-        // Peta sementara untuk mengumpulkan sel-sel dari setiap karakter bidak
         Map<Character, List<int[]>> tempPieceCells = new HashMap<>();
-
+    
         for (int i = 0; i < rows; i++) {
             String line = br.readLine();
-            for (int j = 0; j < cols; j++) {
-                if (j >= line.length()) {
-                    grid[i][j] = '.'; // Anggap kosong jika baris lebih pendek
-                    continue;
-                }
+            for (int j = 0; j < line.length(); j++) {
                 char c = line.charAt(j);
-                grid[i][j] = c;
-
-                if (c != '.' && c != 'K') { // Jika karakter adalah bagian dari bidak
-                    tempPieceCells.putIfAbsent(c, new ArrayList<>());
-                    tempPieceCells.get(c).add(new int[]{i, j});
-                } else if (c == 'K') {
+        
+                // Simpan ke grid hanya jika masih dalam batas ukuran
+                if (j < cols) {
+                    grid[i][j] = c;
+                }
+        
+                // Catat posisi exit meskipun di luar grid
+                if (c == 'K') {
                     exitRow = i;
                     exitCol = j;
                 }
+        
+                // Simpan cell bidak jika dalam batas grid
+                if (c != '.' && c != 'K' && j < cols) {
+                    tempPieceCells.putIfAbsent(c, new ArrayList<>());
+                    tempPieceCells.get(c).add(new int[]{i, j});
+                }
+            }
+        
+            // Isi sisa grid jika baris kurang panjang
+            for (int j = line.length(); j < cols; j++) {
+                grid[i][j] = '.';
             }
         }
-
-        // Buat objek Piece dari sel-sel yang terkumpul
+    
+        // Sama seperti sebelumnya: buat objek Piece dari cell yang terkumpul
         for (Map.Entry<Character, List<int[]>> entry : tempPieceCells.entrySet()) {
             char pieceName = entry.getKey();
             List<int[]> cellLocations = entry.getValue();
-            
+    
             Piece currentPieceObject;
             if (pieceName == 'P') {
                 if (this.primaryPiece == null) {
@@ -67,57 +74,48 @@ public class Board {
             } else {
                 currentPieceObject = new Piece(pieceName);
             }
-            
-            currentPieceObject.cells.clear(); // Pastikan mulai dengan sel kosong sebelum menambahkan
+    
+            currentPieceObject.cells.clear();
             for (int[] cell : cellLocations) {
                 currentPieceObject.addCell(cell[0], cell[1]);
             }
-            
-            determineAndSetOrientation(currentPieceObject); // Tentukan dan set orientasi
-            
-            // Tambahkan ke daftar 'pieces' yang akan digunakan oleh algoritma
-            // Original code adds primaryPiece separately later.
-            // We will add all pieces here and ensure primaryPiece is correctly referenced.
-            if (pieceName == 'P') {
-                // primaryPiece object is already set or created.
-                // We need to ensure it's in the 'pieces' list.
-            }
-            // Untuk menghindari duplikasi jika primaryPiece 'P' juga satu-satunya piece
+    
+            determineAndSetOrientation(currentPieceObject);
+    
             boolean pieceExists = false;
-            for(Piece p : pieces){
-                if(p.name == pieceName){
+            for (Piece p : pieces) {
+                if (p.name == pieceName) {
                     pieceExists = true;
-                    // Update piece if it was already added (e.g. if P was the only piece)
                     p.cells = currentPieceObject.cells;
                     p.orientation = currentPieceObject.orientation;
-                    if(pieceName == 'P') this.primaryPiece = p; // ensure reference is updated
+                    if (pieceName == 'P') this.primaryPiece = p;
                     break;
                 }
             }
-            if(!pieceExists){
+            if (!pieceExists) {
                 pieces.add(currentPieceObject);
             }
         }
-        
+    
         if (this.primaryPiece == null && tempPieceCells.containsKey('P')) {
-            // This case should ideally be covered by the loop above.
-            // If 'P' was in tempPieceCells, primaryPiece object should have been assigned.
-            // Find it in pieces list.
-            for(Piece p : pieces) {
+            for (Piece p : pieces) {
                 if (p.name == 'P') {
                     this.primaryPiece = p;
                     break;
                 }
             }
         }
-
-
+    
         if (this.primaryPiece == null) {
             System.err.println("Peringatan: Bidak utama 'P' tidak ditemukan dalam file input.");
         }
-
+        if (this.exitRow == -1 || this.exitCol == -1) {
+            System.err.println("Peringatan: Titik keluar (K) tidak ditemukan dalam file input.");
+        }
+    
         br.close();
     }
+    
 
     // Konstruktor privat untuk proses cloning
     private Board() {}
