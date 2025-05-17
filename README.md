@@ -25,3 +25,33 @@ D  atau  D    -> bisa gerak horizotal harusnya gaboleh
 
 P-kanan P-kanan P-kanan itu dihitung 3 langkah
 lebih bagusnya kita membuat p-kanan3 yang dihitung 1 langkah
+
+
+
+
+Ada masalah baru fittt
+
+4. problem 4 (config)
+
+jadi kan sebenarnya config kita tuh kayak gini 
+
+6 7
+12
+AAB..F#    notes: "#" itu spasi yak
+..BCDF# 
+GPPCDFK
+GH.III# 
+GHJ...# 
+LLJMM.#
+
+nahh trus config nya kata nya si harus ngikutin asisten jadi gini:
+
+
+6 6
+11
+AAB..F
+..BCDF
+GPPCDFK
+GH.III
+GHJ...
+LLJMM.
