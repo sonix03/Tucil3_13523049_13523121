@@ -55,3 +55,8 @@ GPPCDFK
 GH.III
 GHJ...
 LLJMM.
+
+
+## TESTING
+
+Testing untuk jalan keluar atas dan bawah
