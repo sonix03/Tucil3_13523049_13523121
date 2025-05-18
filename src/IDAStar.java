@@ -5,155 +5,237 @@ import java.util.*;
 public class IDAStar implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
     private int heuristicType;
-    private int nodesExpanded;
-    private int maxDepthReachedInIteration; // Untuk melacak kedalaman max di satu iterasi
-    
+    private int nodesExpandedThisIteration;
+    private int totalNodesExpanded;
+
+    private static class SummarizedStep {
+        char piece;
+        char direction;
+        int moveCount;
+        Board boardState;
+        int g;
+        int h;
+
+        public SummarizedStep(char piece, char direction, int moveCount, Board boardState, int g, int h) {
+            this.piece = piece;
+            this.direction = direction;
+            this.moveCount = moveCount;
+            this.boardState = boardState;
+            this.g = g;
+            this.h = h;
+        }
+
+        public String getDisplay(String dirName) {
+            return piece + "-" + dirName + (moveCount > 1 ? " " + moveCount + " kali" : "") +
+                   " (g=" + g + ", h=" + h + ", f=" + (g + h) + ")";
+        }
+    }
+
     public IDAStar(int heuristicType) {
         this.heuristicType = heuristicType;
     }
-    
+
     @Override
     public void solve(Board start) {
-        nodesExpanded = 0;
-        
-        int bound = Heuristic.calculate(start, heuristicType); // Batas awal adalah h(start)
-        Path solutionPath = null;
-        
+        totalNodesExpanded = 0;
+        int bound = Heuristic.calculate(start, heuristicType);
+        Path solutionPathNode = null;
+
         System.out.println("IDA* dengan heuristik " + getHeuristicName(heuristicType));
-        
-        while (solutionPath == null) {
+
+        while (true) { // Loop utama IDA*
             System.out.println("Menjelajah dengan batas f-cost: " + bound);
-            maxDepthReachedInIteration = 0; // Reset untuk iterasi baru
-            SearchResult result = search(start, 0, bound, new ArrayList<>(), null, '\0', '\0');
-            nodesExpanded += result.nodesInThisPath; // Akumulasi node yang dieksplorasi
+            nodesExpandedThisIteration = 0;
+            SearchResult result = search(new Path(start, null, '\0', '\0', 0, Heuristic.calculate(start, heuristicType)), bound, new HashSet<>());
+            totalNodesExpanded += nodesExpandedThisIteration;
 
             if (result.isGoal) {
-                solutionPath = result.path;
+                solutionPathNode = result.path;
                 break;
             }
             if (result.nextBound == Integer.MAX_VALUE) {
                 System.out.println("Tidak ada batas berikutnya, solusi tidak ditemukan.");
-                break; // Tidak ada solusi
+                break;
             }
-            bound = result.nextBound; // Tingkatkan batas ke nilai f terkecil berikutnya yang melebihi batas lama
-            if (bound == result.previousBound && result.nextBound > result.previousBound) { 
-                // Jika terjebak atau nextBound tidak meningkat signifikan, mungkin perlu penanganan khusus
-                // atau ini hanya berarti kita perlu iterasi lagi dengan bound yang sama (jika ada path dgn f=bound tapi bukan goal)
+            if (result.nextBound <= bound) { // Mencegah stuck jika nextBound tidak meningkat
+                 System.out.println("Peringatan: Batas f-cost tidak meningkat (lama: " + bound + ", baru: " + result.nextBound + "). Menaikkan batas minimal.");
+                 bound++; // Atau bound = result.nextBound + 1 jika result.nextBound adalah nilai valid
+            } else {
+                bound = result.nextBound;
+            }
+            if (bound > 1000 && solutionPathNode==null) { // Batas pengaman sederhana, sesuaikan
+                System.out.println("IDA* melebihi batas iterasi/f-cost maksimum, menghentikan.");
+                break;
             }
         }
-        
-        if (solutionPath != null) {
-            printSolution(solutionPath);
-            System.out.println("Total Node yang dieksplorasi: " + nodesExpanded);
-            // maxDepth di IDA* adalah panjang solusi karena kita mencari solusi optimal
-            // System.out.println("Kedalaman solusi: " + solutionPath.g);
+
+        if (solutionPathNode != null) {
+            List<SummarizedStep> summarizedPath = getSummarizedPath(solutionPathNode);
+            printSummarizedSolution(summarizedPath);
+            System.out.println("Total Node yang dieksplorasi: " + totalNodesExpanded);
         } else {
             System.out.println("Tidak ditemukan solusi!");
-            System.out.println("Total Node yang dieksplorasi (hingga pencarian terakhir): " + nodesExpanded);
+            System.out.println("Total Node yang dieksplorasi (hingga pencarian terakhir): " + totalNodesExpanded);
         }
     }
 
     @Override
     public List<Board> solveAndReturnPath(Board start) {
-    nodesExpanded = 0;
+        totalNodesExpanded = 0;
+        int bound = Heuristic.calculate(start, heuristicType);
+        Path solutionPathNode = null;
 
-    int bound = Heuristic.calculate(start, heuristicType); // Batas awal f-cost (heuristik start)
-    Path solutionPath = null;
+        System.out.println("IDA* dengan heuristik " + getHeuristicName(heuristicType) + " (mencari path list)");
 
-    System.out.println("IDA* dengan heuristik " + getHeuristicName(heuristicType));
+         while (true) {
+            System.out.println("Menjelajah dengan batas f-cost: " + bound);
+            nodesExpandedThisIteration = 0;
+            SearchResult result = search(new Path(start, null, '\0', '\0', 0, Heuristic.calculate(start, heuristicType)), bound, new HashSet<>());
+            totalNodesExpanded += nodesExpandedThisIteration;
 
-    while (solutionPath == null) {
-        System.out.println("Menjelajah dengan batas f-cost: " + bound);
-        maxDepthReachedInIteration = 0; // Reset batas iterasi baru
-
-        SearchResult result = search(start, 0, bound, new ArrayList<>(), null, '\0', '\0');
-        nodesExpanded += result.nodesInThisPath;
-
-        if (result.isGoal) {
-            solutionPath = result.path;
-            break;
+            if (result.isGoal) {
+                solutionPathNode = result.path;
+                break;
+            }
+            if (result.nextBound == Integer.MAX_VALUE) {
+                System.out.println("Tidak ada batas berikutnya, solusi tidak ditemukan.");
+                break;
+            }
+             if (result.nextBound <= bound) {
+                 System.out.println("Peringatan: Batas f-cost tidak meningkat (lama: " + bound + ", baru: " + result.nextBound + "). Menaikkan batas minimal.");
+                 bound++;
+            } else {
+                bound = result.nextBound;
+            }
+            if (bound > 1000 && solutionPathNode==null) {
+                System.out.println("IDA* melebihi batas iterasi/f-cost maksimum, menghentikan.");
+                break;
+            }
         }
-        if (result.nextBound == Integer.MAX_VALUE) {
-            System.out.println("Tidak ada batas berikutnya, solusi tidak ditemukan.");
-            break; // Tidak ada solusi
+
+        if (solutionPathNode == null) {
+            System.out.println("Tidak ditemukan solusi!");
+            System.out.println("Total Node yang dieksplorasi (hingga pencarian terakhir): " + totalNodesExpanded);
+            return new ArrayList<>();
         }
 
-        bound = result.nextBound;
-
-        if (bound == result.previousBound && result.nextBound > result.previousBound) {
-            // Penanganan jika terjebak (opsional)
+        List<Board> boardPath = new ArrayList<>();
+        Path tempPath = solutionPathNode;
+        while (tempPath != null) {
+            boardPath.add(tempPath.board);
+            tempPath = tempPath.parent;
         }
+        Collections.reverse(boardPath);
+
+        List<SummarizedStep> summarizedPath = getSummarizedPath(solutionPathNode);
+        System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
+        System.out.println("Total Node yang dieksplorasi: " + totalNodesExpanded);
+
+        return boardPath;
     }
 
-    if (solutionPath == null) {
-        System.out.println("Tidak ditemukan solusi!");
-        System.out.println("Total Node yang dieksplorasi (hingga pencarian terakhir): " + nodesExpanded);
-        return new ArrayList<>();
-    }
-
-    // Kumpulkan langkah solusi dari Path ke List<Board>
-    List<Board> pathBoards = new ArrayList<>();
-    Path current = solutionPath;
-    while (current != null) {
-        pathBoards.add(current.board);
-        current = current.parent;
-    }
-    Collections.reverse(pathBoards);
-
-    System.out.println("Solusi ditemukan dalam " + (pathBoards.size() - 1) + " langkah.");
-    System.out.println("Total Node yang dieksplorasi: " + nodesExpanded);
-
-    return pathBoards;
-}
-
-
-    // ArrayList<String> pathStates untuk melacak state dalam path saat ini untuk menghindari siklus
-    private SearchResult search(Board currentBoard, int gCost, int currentBound, List<String> currentPathStates, Path parentPathNode, char pieceMoved, char moveDir) {
-        int hCost = Heuristic.calculate(currentBoard, heuristicType);
+    // Menggunakan Set<String> untuk pathStates agar lebih efisien daripada List<String> untuk contains()
+    private SearchResult search(Path currentPath, int bound, Set<String> pathStates) {
+        nodesExpandedThisIteration++;
+        Board currentBoard = currentPath.board;
+        int gCost = currentPath.g;
+        int hCost = currentPath.h; // Heuristik sudah dihitung saat Path dibuat
         int fCost = gCost + hCost;
-        
-        int currentSearchNodes = 1; // Hitung node ini
 
-        if (fCost > currentBound) {
-            return new SearchResult(false, null, fCost, currentBound, currentSearchNodes); // Kembalikan fCost sebagai batas berikutnya
+        if (fCost > bound) {
+            return new SearchResult(false, null, fCost);
         }
-        
+
         if (isGoalState(currentBoard)) {
-            Path goalPath = new Path(currentBoard, parentPathNode, pieceMoved, moveDir, gCost, hCost);
-            return new SearchResult(true, goalPath, currentBound, currentBound, currentSearchNodes);
+            return new SearchResult(true, currentPath, fCost);
         }
-        
+
         String boardKey = getBoardKey(currentBoard);
-        if (currentPathStates.contains(boardKey)) { // Deteksi siklus sederhana dalam path saat ini
-            return new SearchResult(false, null, Integer.MAX_VALUE, currentBound, currentSearchNodes);
+        if (pathStates.contains(boardKey)) {
+            return new SearchResult(false, null, Integer.MAX_VALUE); // Siklus, anggap f-cost sangat tinggi
         }
-        currentPathStates.add(boardKey); // Tambahkan state saat ini ke path
+        pathStates.add(boardKey);
 
         int minNextBound = Integer.MAX_VALUE;
-        
-        Path currentPathObject = new Path(currentBoard, parentPathNode, pieceMoved, moveDir, gCost, hCost);
 
         for (Piece piece : currentBoard.pieces) {
             for (char dir : priorityDirs) {
                 if (canMove(currentBoard, piece.name, dir)) {
                     Board newBoard = move(currentBoard, piece.name, dir);
-                    
-                    SearchResult recursiveResult = search(newBoard, gCost + 1, currentBound, currentPathStates, currentPathObject, piece.name, dir);
-                    currentSearchNodes += recursiveResult.nodesInThisPath;
+                    int newGCost = gCost + 1;
+                    int newHCost = Heuristic.calculate(newBoard, heuristicType);
+                    Path newPath = new Path(newBoard, currentPath, piece.name, dir, newGCost, newHCost);
+
+                    SearchResult recursiveResult = search(newPath, bound, pathStates);
 
                     if (recursiveResult.isGoal) {
-                        // Penting: sertakan node dari path yang berhasil
-                        return new SearchResult(true, recursiveResult.path, currentBound, currentBound, currentSearchNodes);
+                        pathStates.remove(boardKey); // Penting untuk backtrack
+                        return recursiveResult;
                     }
                     minNextBound = Math.min(minNextBound, recursiveResult.nextBound);
                 }
             }
         }
-        
-        currentPathStates.remove(boardKey); // Hapus state saat backtrack
-        return new SearchResult(false, null, minNextBound, currentBound, currentSearchNodes);
+
+        pathStates.remove(boardKey); // Hapus state saat backtrack
+        return new SearchResult(false, null, minNextBound);
     }
-    
+
+
+    private List<SummarizedStep> getSummarizedPath(Path solutionPathNode) {
+        List<SummarizedStep> summarizedSteps = new ArrayList<>();
+        if (solutionPathNode == null) return summarizedSteps;
+
+        List<Path> rawPathNodes = new ArrayList<>();
+        Path current = solutionPathNode;
+        while (current != null && current.parent != null) {
+            rawPathNodes.add(current);
+            current = current.parent;
+        }
+        Collections.reverse(rawPathNodes);
+
+        if (rawPathNodes.isEmpty()) return summarizedSteps;
+
+        char currentPiece = rawPathNodes.get(0).piece;
+        char currentDirection = rawPathNodes.get(0).direction;
+        int moveCount = 0;
+        Board lastBoardInSequence = rawPathNodes.get(0).board;
+        int gVal = rawPathNodes.get(0).g;
+        int hVal = rawPathNodes.get(0).h;
+
+        for (Path pathNode : rawPathNodes) {
+            if (pathNode.piece == currentPiece && pathNode.direction == currentDirection) {
+                moveCount++;
+                lastBoardInSequence = pathNode.board;
+                gVal = pathNode.g;
+                hVal = pathNode.h;
+            } else {
+                summarizedSteps.add(new SummarizedStep(currentPiece, currentDirection, moveCount, lastBoardInSequence, gVal, hVal));
+                currentPiece = pathNode.piece;
+                currentDirection = pathNode.direction;
+                moveCount = 1;
+                lastBoardInSequence = pathNode.board;
+                gVal = pathNode.g;
+                hVal = pathNode.h;
+            }
+        }
+         if (moveCount > 0) {
+            summarizedSteps.add(new SummarizedStep(currentPiece, currentDirection, moveCount, lastBoardInSequence, gVal, hVal));
+        }
+        return summarizedSteps;
+    }
+
+    private void printSummarizedSolution(List<SummarizedStep> summarizedPath) {
+        int stepNumber = 1;
+        for (SummarizedStep step : summarizedPath) {
+            System.out.println("Langkah " + stepNumber + ": " + step.getDisplay(getDirName(step.direction)));
+            step.boardState.print();
+            System.out.println();
+            stepNumber++;
+        }
+        System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
+    }
+
     private boolean isGoalState(Board board) {
         if (board.primaryPiece == null || board.exitRow == -1) return false;
         for (int[] cell : board.primaryPiece.cells) {
@@ -164,7 +246,7 @@ public class IDAStar implements Solver {
         }
         return false;
     }
-    
+
     private String getBoardKey(Board board) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < board.rows; i++) {
@@ -174,26 +256,7 @@ public class IDAStar implements Solver {
         }
         return sb.toString();
     }
-    
-    private void printSolution(Path path) {
-        List<Path> steps = new ArrayList<>();
-        Path current = path;
-        while (current != null && current.piece != '\0') { // Jangan tambahkan start node (yang parentnya null)
-            steps.add(current);
-            current = current.parent;
-        }
-        Collections.reverse(steps);
-        int step = 1;
-        for (Path node : steps) {
-            System.out.println("Gerakan " + step + ": " + node.piece + "-" + getDirName(node.direction) + 
-            " (g=" + node.g + ", h=" + node.h + ", f=" + (node.g + node.h) + ")");
-            node.board.print();
-            System.out.println();
-            step++;
-        }
-        System.out.println("Solusi ditemukan dalam " + steps.size() + " langkah.");
-    }
-    
+
     private String getDirName(char d) {
         return switch (d) {
             case 'L' -> "kiri";
@@ -205,10 +268,9 @@ public class IDAStar implements Solver {
     }
 
     private String getHeuristicName(int type) {
-        return Heuristic.getName(type); // Menggunakan metode dari kelas Heuristic
+        return Heuristic.getName(type);
     }
-    
-    // --- METODE CANMOVE YANG DIMODIFIKASI ---
+
     private boolean canMove(Board board, char pieceName, char dir) {
         Piece pieceToMove = null;
         for (Piece p : board.pieces) {
@@ -221,7 +283,7 @@ public class IDAStar implements Solver {
         if (pieceToMove == null || pieceToMove.cells.isEmpty()) {
             return false;
         }
-        
+
         PieceOrientation orientation = pieceToMove.getOrientation();
 
         if (orientation == PieceOrientation.HORIZONTAL) {
@@ -235,17 +297,22 @@ public class IDAStar implements Solver {
         }
 
         for (int[] cell : pieceToMove.cells) {
-            int newRow = cell[0];
-            int newCol = cell[1];
+            int currentRow = cell[0];
+            int currentCol = cell[1];
+            int newRow = currentRow;
+            int newCol = currentCol;
+
             switch (dir) {
                 case 'L' -> newCol--;
                 case 'R' -> newCol++;
                 case 'U' -> newRow--;
                 case 'D' -> newRow++;
             }
+
             if (newRow < 0 || newRow >= board.rows || newCol < 0 || newCol >= board.cols) {
                 return false;
             }
+
             char destinationCellContent = board.grid[newRow][newCol];
             boolean partOfItself = false;
             for(int[] ownCell : pieceToMove.cells){
@@ -254,14 +321,14 @@ public class IDAStar implements Solver {
                     break;
                 }
             }
+
             if (destinationCellContent != '.' && destinationCellContent != 'K' && !partOfItself) {
                 return false;
             }
         }
         return true;
     }
-    // --- AKHIR METODE CANMOVE ---
-    
+
     private Board move(Board board, char pieceName, char dir) {
         Board newBoard = board.clone();
         Piece targetPieceInNewBoard = null;
@@ -273,10 +340,11 @@ public class IDAStar implements Solver {
         }
 
         if (targetPieceInNewBoard == null) return newBoard;
-        
+
         for (int[] cell : targetPieceInNewBoard.cells) {
             newBoard.grid[cell[0]][cell[1]] = '.';
         }
+
         for (int[] cell : targetPieceInNewBoard.cells) {
             switch (dir) {
                 case 'L' -> cell[1]--;
@@ -285,39 +353,43 @@ public class IDAStar implements Solver {
                 case 'D' -> cell[0]++;
             }
         }
+
         for (int[] cell : targetPieceInNewBoard.cells) {
-            newBoard.grid[cell[0]][cell[1]] = pieceName;
+            if (cell[0] >= 0 && cell[0] < newBoard.rows && cell[1] >=0 && cell[1] < newBoard.cols) {
+                 newBoard.grid[cell[0]][cell[1]] = pieceName;
+            } else {
+                System.err.println("Error critical (IDA*): Piece " + pieceName + " moved out of bounds. Row: " + cell[0] + ", Col: " + cell[1]);
+                return board;
+            }
         }
-        if (pieceName == 'P') {
+
+        char KODE_BIDAK_UTAMA = 'P';
+        if (pieceName == KODE_BIDAK_UTAMA) {
             newBoard.primaryPiece = targetPieceInNewBoard;
         }
         return newBoard;
     }
-    
+
     private static class SearchResult {
         boolean isGoal;
         Path path;
-        int nextBound; // Nilai f terkecil yang melebihi bound saat ini
-        int previousBound; // Bound yang digunakan untuk pencarian ini
-        int nodesInThisPath; // Node yang dieksplorasi dalam pencarian spesifik ini
-        
-        public SearchResult(boolean isGoal, Path path, int nextBound, int previousBound, int nodesInThisPath) {
+        int nextBound;
+
+        public SearchResult(boolean isGoal, Path path, int nextBound) {
             this.isGoal = isGoal;
             this.path = path;
             this.nextBound = nextBound;
-            this.previousBound = previousBound;
-            this.nodesInThisPath = nodesInThisPath;
         }
     }
-    
+
     private static class Path {
         Board board;
         Path parent;
         char piece;
         char direction;
-        int g;  // cost dari start node (jumlah langkah)
-        int h;  // heuristic value
-        
+        int g;
+        int h;
+
         public Path(Board board, Path parent, char piece, char direction, int g, int h) {
             this.board = board;
             this.parent = parent;

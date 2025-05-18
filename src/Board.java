@@ -25,7 +25,7 @@ public class Board {
         cols = Integer.parseInt(size[1]);
     
         @SuppressWarnings("unused")
-        int nPiece = Integer.parseInt(br.readLine().trim());
+        int nPiece = Integer.parseInt(br.readLine().trim()) + 1;
     
         grid = new char[rows][cols];
         pieces = new ArrayList<>();
