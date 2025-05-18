@@ -1,10 +1,9 @@
-// Sesuaikan dengan struktur package Anda jika ada
-
 import java.util.*;
 
 public class UCS implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
     private int nodesExpanded;
+    public int lastSummarizedStepCount;
 
     private static class SummarizedStep {
         char piece;
@@ -12,6 +11,7 @@ public class UCS implements Solver {
         int moveCount;
         Board boardState;
         int g; // Cost
+        
 
         public SummarizedStep(char piece, char direction, int moveCount, Board boardState, int g) {
             this.piece = piece;
@@ -150,10 +150,16 @@ public class UCS implements Solver {
         Collections.reverse(boardPath);
 
         List<SummarizedStep> summarizedPath = getSummarizedPath(solutionNode);
+        lastSummarizedStepCount = summarizedPath.size();
         System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
         System.out.println("Node yang dieksplorasi: " + nodesExpanded);
 
         return boardPath;
+    }
+
+    @Override
+    public int getLastSummarizedStepCount() {
+        return lastSummarizedStepCount;
     }
 
     private List<SummarizedStep> getSummarizedPath(Node solutionNode) {

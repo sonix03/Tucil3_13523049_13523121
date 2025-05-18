@@ -6,6 +6,7 @@ public class AStar implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
     private int heuristicType;
     private int nodesExpanded;
+    private int lastSummarizedStepCount = 0;
 
     // Helper class for summarized steps
     private static class SummarizedStep {
@@ -174,10 +175,16 @@ public class AStar implements Solver {
         Collections.reverse(boardPath);
         
         List<SummarizedStep> summarizedPath = getSummarizedPath(solutionNode);
+        lastSummarizedStepCount = summarizedPath.size();
         System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
         System.out.println("Node yang dieksplorasi: " + nodesExpanded);
         
         return boardPath;
+    }
+
+    @Override
+    public int getLastSummarizedStepCount() {
+        return lastSummarizedStepCount;
     }
     
 

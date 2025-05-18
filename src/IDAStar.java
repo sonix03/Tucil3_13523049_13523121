@@ -7,6 +7,7 @@ public class IDAStar implements Solver {
     private int heuristicType;
     private int nodesExpandedThisIteration;
     private int totalNodesExpanded;
+    private int lastSummarizedStepCount = 0;
 
     private static class SummarizedStep {
         char piece;
@@ -128,10 +129,16 @@ public class IDAStar implements Solver {
         Collections.reverse(boardPath);
 
         List<SummarizedStep> summarizedPath = getSummarizedPath(solutionPathNode);
+        lastSummarizedStepCount = summarizedPath.size();
         System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
         System.out.println("Total Node yang dieksplorasi: " + totalNodesExpanded);
 
         return boardPath;
+    }
+
+    @Override
+    public int getLastSummarizedStepCount() {
+        return lastSummarizedStepCount;
     }
 
     // Menggunakan Set<String> untuk pathStates agar lebih efisien daripada List<String> untuk contains()

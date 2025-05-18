@@ -5,6 +5,7 @@ public class GBFS implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
     private int heuristicType;
     private int nodesExpanded;
+    public int lastSummarizedStepCount = 0;
 
     private static class SummarizedStep {
         char piece;
@@ -153,11 +154,17 @@ public class GBFS implements Solver {
         Collections.reverse(boardPath);
 
         List<SummarizedStep> summarizedPath = getSummarizedPath(solutionNode);
+        lastSummarizedStepCount = summarizedPath.size();
         System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
         System.out.println("Node yang dieksplorasi: " + nodesExpanded);
 
         return boardPath;
     }
+
+    @Override
+    public int getLastSummarizedStepCount() {
+        return lastSummarizedStepCount;
+    }   
 
     private List<SummarizedStep> getSummarizedPath(Node solutionNode) {
         List<SummarizedStep> summarizedSteps = new ArrayList<>();
