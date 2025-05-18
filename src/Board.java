@@ -2,69 +2,78 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Board {
     public int rows, cols;
     public char[][] grid;
-    public List<Piece> pieces; // Daftar semua bidak, termasuk primaryPiece
-    public Piece primaryPiece; // Bidak utama 'P'
+    public List<Piece> pieces;
+    public Piece primaryPiece;
     public int exitRow = -1, exitCol = -1;
 
     public Board(File file) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(file));
-    
+
         String[] size = br.readLine().trim().split(" ");
         rows = Integer.parseInt(size[0]);
         cols = Integer.parseInt(size[1]);
-    
+
         @SuppressWarnings("unused")
-        int nPiece = Integer.parseInt(br.readLine().trim());
-    
+        int nPiece = Integer.parseInt(br.readLine().trim()) + 1;
+
         grid = new char[rows][cols];
         pieces = new ArrayList<>();
         Map<Character, List<int[]>> tempPieceCells = new HashMap<>();
-    
-        for (int i = 0; i < rows; i++) {
-            String line = br.readLine();
-            for (int j = 0; j < line.length(); j++) {
-                char c = line.charAt(j);
-        
-                // Simpan ke grid hanya jika masih dalam batas ukuran
-                if (j < cols) {
-                    grid[i][j] = c;
+
+        int currentRow = 0;
+        String line;
+
+        while ((line = br.readLine()) != null) {
+            // Jika masih dalam grid, isi grid dan deteksi bidak
+            if (currentRow < rows) {
+                for (int j = 0; j < line.length(); j++) {
+                    char c = line.charAt(j);
+
+                    // Isi grid jika dalam batas
+                    if (j < cols) {
+                        grid[currentRow][j] = c;
+                    }
+
+                    // Catat posisi exit meskipun di luar grid
+                    if (c == 'K') {
+                        exitRow = currentRow;
+                        exitCol = j;
+                    }
+
+                    // Catat bidak jika dalam grid
+                    if (c != '.' && c != 'K' && j < cols) {
+                        tempPieceCells.putIfAbsent(c, new ArrayList<>());
+                        tempPieceCells.get(c).add(new int[]{currentRow, j});
+                    }
                 }
-        
-                // Catat posisi exit meskipun di luar grid
-                if (c == 'K') {
-                    exitRow = i;
-                    exitCol = j;
+
+                // Jika baris lebih pendek dari grid, isi titik
+                for (int j = line.length(); j < cols; j++) {
+                    grid[currentRow][j] = '.';
                 }
-        
-                // Simpan cell bidak jika dalam batas grid
-                if (c != '.' && c != 'K' && j < cols) {
-                    tempPieceCells.putIfAbsent(c, new ArrayList<>());
-                    tempPieceCells.get(c).add(new int[]{i, j});
+            } else {
+                // Di luar area grid, tetap cari K
+                for (int j = 0; j < line.length(); j++) {
+                    if (line.charAt(j) == 'K') {
+                        exitRow = currentRow;
+                        exitCol = j;
+                    }
                 }
             }
-        
-            // Isi sisa grid jika baris kurang panjang
-            for (int j = line.length(); j < cols; j++) {
-                grid[i][j] = '.';
-            }
+
+            currentRow++;
         }
-    
-        // Sama seperti sebelumnya: buat objek Piece dari cell yang terkumpul
+
+        // Proses bidak
         for (Map.Entry<Character, List<int[]>> entry : tempPieceCells.entrySet()) {
             char pieceName = entry.getKey();
             List<int[]> cellLocations = entry.getValue();
-    
+
             Piece currentPieceObject;
             if (pieceName == 'P') {
                 if (this.primaryPiece == null) {
@@ -74,14 +83,14 @@ public class Board {
             } else {
                 currentPieceObject = new Piece(pieceName);
             }
-    
+
             currentPieceObject.cells.clear();
             for (int[] cell : cellLocations) {
                 currentPieceObject.addCell(cell[0], cell[1]);
             }
-    
+
             determineAndSetOrientation(currentPieceObject);
-    
+
             boolean pieceExists = false;
             for (Piece p : pieces) {
                 if (p.name == pieceName) {
@@ -96,7 +105,8 @@ public class Board {
                 pieces.add(currentPieceObject);
             }
         }
-    
+
+        // Cek ulang primary piece
         if (this.primaryPiece == null && tempPieceCells.containsKey('P')) {
             for (Piece p : pieces) {
                 if (p.name == 'P') {
@@ -105,22 +115,19 @@ public class Board {
                 }
             }
         }
-    
+
         if (this.primaryPiece == null) {
             System.err.println("Peringatan: Bidak utama 'P' tidak ditemukan dalam file input.");
         }
         if (this.exitRow == -1 || this.exitCol == -1) {
             System.err.println("Peringatan: Titik keluar (K) tidak ditemukan dalam file input.");
         }
-    
+
         br.close();
     }
-    
 
-    // Konstruktor privat untuk proses cloning
     private Board() {}
 
-    // Metode untuk menentukan dan mengatur orientasi bidak
     private void determineAndSetOrientation(Piece piece) {
         if (piece.cells.isEmpty()) {
             piece.setOrientation(PieceOrientation.OTHER);
@@ -131,32 +138,20 @@ public class Board {
             return;
         }
 
-        boolean isStrictlyHorizontal = true;
-        boolean isStrictlyVertical = true;
-
-        int firstRow = piece.cells.get(0)[0];
-        int firstCol = piece.cells.get(0)[1];
-
         Set<Integer> uniqueRows = new HashSet<>();
         Set<Integer> uniqueCols = new HashSet<>();
-        for(int[] cell : piece.cells){
+        for (int[] cell : piece.cells) {
             uniqueRows.add(cell[0]);
             uniqueCols.add(cell[1]);
         }
 
-        // Cek Horizontal: semua sel di baris yang sama, dan kolomnya berbeda
         if (uniqueRows.size() == 1 && uniqueCols.size() == piece.cells.size()) {
             piece.setOrientation(PieceOrientation.HORIZONTAL);
-            return;
-        }
-
-        // Cek Vertikal: semua sel di kolom yang sama, dan barisnya berbeda
-        if (uniqueCols.size() == 1 && uniqueRows.size() == piece.cells.size()) {
+        } else if (uniqueCols.size() == 1 && uniqueRows.size() == piece.cells.size()) {
             piece.setOrientation(PieceOrientation.VERTICAL);
-            return;
+        } else {
+            piece.setOrientation(PieceOrientation.OTHER);
         }
-        
-        piece.setOrientation(PieceOrientation.OTHER); // Jika tidak memenuhi kriteria di atas
     }
 
     public void print() {
@@ -167,21 +162,17 @@ public class Board {
             System.out.println();
         }
         if (primaryPiece != null && primaryPiece.cells != null) {
-             System.out.println("Primary piece (P) at: " + Arrays.deepToString(primaryPiece.cells.toArray()) + " Orientation: " + primaryPiece.getOrientation());
+            System.out.println("Primary piece (P) at: " + Arrays.deepToString(primaryPiece.cells.toArray()) +
+                               " Orientation: " + primaryPiece.getOrientation());
         } else {
             System.out.println("Primary piece (P) not found or has no cells.");
         }
         System.out.println("Exit at: (" + exitRow + ", " + exitCol + ")");
-        // Optional: Print all pieces and their orientations for debugging
-        // System.out.println("All pieces:");
-        // for (Piece p : pieces) {
-        //     System.out.println("- Piece " + p.name + ": " + p.getOrientation() + " at " + Arrays.deepToString(p.cells.toArray()));
-        // }
     }
 
     @Override
     public Board clone() {
-        Board copy = new Board(); // Menggunakan konstruktor privat
+        Board copy = new Board();
         copy.rows = this.rows;
         copy.cols = this.cols;
         copy.grid = new char[rows][cols];
@@ -197,7 +188,7 @@ public class Board {
                 copy.primaryPiece = clonedPiece;
             }
         }
-        
+
         copy.exitRow = this.exitRow;
         copy.exitCol = this.exitCol;
         return copy;

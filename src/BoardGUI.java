@@ -15,29 +15,48 @@ public class BoardGUI extends JPanel {
         if (board == null) return;
     
         int cellSize = 80;
-        int totalCols = board.cols;
     
-        // Jika posisi K ada di luar kolom normal, perluas area gambar
-        if (board.exitCol >= board.cols) {
-            totalCols = board.exitCol + 1;
-        }
+        // Ukuran total grid termasuk jika K di luar
+        int totalCols = Math.max(board.cols, board.exitCol + 1);
+        int totalRows = Math.max(board.rows, board.exitRow + 1);
     
-        // Gambar seluruh sel
-        for (int i = 0; i < board.rows; i++) {
+        for (int i = 0; i < totalRows; i++) {
             for (int j = 0; j < totalCols; j++) {
-                char c = (j < board.cols) ? board.grid[i][j] : '.'; // default '.' untuk kolom tambahan
+                // Ambil isi sel atau default '.'
+                char c = (i < board.rows && j < board.cols) ? board.grid[i][j] : '.';
     
-                // Jika ini posisi exit dan tidak ada di grid, jadikan c = 'K'
+                // Jika ini titik exit 'K', override
                 if (i == board.exitRow && j == board.exitCol) {
                     c = 'K';
                 }
     
-                g.setColor(switch (c) {
-                    case '.' -> Color.WHITE;
-                    case 'K' -> Color.GREEN;
-                    case 'P' -> Color.RED;
-                    default -> Color.LIGHT_GRAY;
-                });
+                Color fillColor;
+    
+                if (c == 'K') {
+                    fillColor = Color.GREEN;
+                }
+ 
+                else if (board.exitCol >= board.cols && j == board.exitCol) {
+                    fillColor = new Color(220, 220, 220);
+                }
+        
+                else if (board.exitRow >= board.rows && i == board.exitRow) {
+                    fillColor = new Color(220, 220, 220);
+                }
+
+                else if (board.exitRow < board.rows && board.exitCol < board.cols &&
+                         i == board.exitRow && j != board.exitCol) {
+                    fillColor = new Color(220, 220, 220);
+                }
+                else {
+                    fillColor = switch (c) {
+                        case '.' -> Color.WHITE;
+                        case 'P' -> Color.RED;
+                        default -> Color.LIGHT_GRAY;
+                    };
+                }
+    
+                g.setColor(fillColor);
                 g.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
                 g.setColor(Color.BLACK);
                 g.drawRect(j * cellSize, i * cellSize, cellSize, cellSize);

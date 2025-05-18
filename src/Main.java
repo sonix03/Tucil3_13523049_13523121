@@ -76,15 +76,15 @@ public class Main {
                     try {
                         heuristicChoice = scanner.nextInt();
                         if (heuristicChoice >= 1 && heuristicChoice <= 3) {
-                            break; // Keluar dari loop jika input valid
+                            break;
                         } else {
                             System.out.println("Pilihan tidak valid. Masukkan angka antara 1 dan 3.");
                         }
                     } catch (InputMismatchException e) {
                         System.out.println("Input tidak valid. Harap masukkan angka.");
-                        scanner.next(); // Bersihkan input yang salah dari scanner
+                        scanner.next(); 
                     }
-                    System.out.println(); // Beri jarak
+                    System.out.println(); 
                 }
 
                 int heuristicIndex = heuristicChoice - 1;
