@@ -123,7 +123,7 @@ public class GUIFrame extends JFrame {
         List<Board> path = solver.solveAndReturnPath(boardCopy);
         long end = System.currentTimeMillis();
 
-        if (path == null || path.size() <= 1) {
+        if (path == null || path.size() <= 0) {
             JOptionPane.showMessageDialog(this, "Tidak ditemukan solusi.");
             statusLabel.setText("Solusi tidak ditemukan.");
             return;

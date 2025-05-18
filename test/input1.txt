@@ -2,7 +2,10 @@
 11
 AAB..F 
 ..BCDF 
+11
+AAB..F
+..BCDF
 GPPCDFK
-GH.III 
-GHJ... 
-LLJMM. 
+GH.III
+GHJ...
+LLJMM.
