@@ -10,9 +10,11 @@ public class GUIFrame extends JFrame {
     private BoardGUI boardPanel;
     private File selectedFile;
     private Board currentBoard;
+    private boolean isRunning = false;
+    private AnimationManager animationManager;
 
     public GUIFrame() {
-        super("Rush Hour Solver GUI");
+        super("Rush Hour Solver");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 700);
         setLayout(new BorderLayout());
@@ -57,12 +59,67 @@ public class GUIFrame extends JFrame {
         });
 
         runButton.addActionListener(e -> {
+            if (isRunning) {
+                if (animationManager != null) {
+                    animationManager.stop(); 
+                }
+                boardPanel.setBoard(currentBoard); 
+                runButton.setText("Jalankan");
+                isRunning = false;
+                statusLabel.setText("Dihentikan. Board dikembalikan.");
+                return;
+            }
+        
+            // Jika belum ada board
             if (currentBoard == null) {
                 JOptionPane.showMessageDialog(this, "Pilih file dulu.");
                 return;
             }
-            runSolver();
+        
+            // Jalankan solver
+            runButton.setText("Hentikan");
+            isRunning = true;
+        
+            int algoIdx = algoCombo.getSelectedIndex();
+            int heurIdx = heuristicCombo.getSelectedIndex();
+        
+            Solver solver = switch (algoIdx) {
+                case 0 -> new GBFS(heurIdx);
+                case 1 -> new UCS();
+                case 2 -> new AStar(heurIdx);
+                case 3 -> new IDAStar(heurIdx);
+                default -> null;
+            };
+        
+            if (solver == null) {
+                JOptionPane.showMessageDialog(this, "Solver belum tersedia.");
+                runButton.setText("Jalankan");
+                isRunning = false;
+                return;
+            }
+        
+            Board boardCopy = currentBoard.clone();
+            long start = System.currentTimeMillis();
+            List<Board> path = solver.solveAndReturnPath(boardCopy);
+            long end = System.currentTimeMillis();
+        
+            if (path == null || path.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Tidak ditemukan solusi.");
+                statusLabel.setText("Solusi tidak ditemukan.");
+                runButton.setText("Jalankan");
+                isRunning = false;
+                return;
+            }
+        
+            statusLabel.setText("Selesai dalam " + (end - start) + " ms, langkah: " + (path.size() - 1));
+            animationManager = new AnimationManager(path, boardPanel, () -> {
+                // Callback setelah animasi selesai
+                runButton.setText("Jalankan");
+                isRunning = false;
+            });
+            animationManager.start();
         });
+        
 
         topPanel.add(fileButton);
         topPanel.add(new JLabel("Algoritma:"));
@@ -84,53 +141,5 @@ public class GUIFrame extends JFrame {
         statusLabel = new JLabel("Pilih file untuk mulai.");
         bottom.add(statusLabel, BorderLayout.CENTER);
         add(bottom, BorderLayout.SOUTH);
-    }
-
-    private void runSolver() {
-        int algoIdx = algoCombo.getSelectedIndex();
-        int heurIdx = heuristicCombo.getSelectedIndex();
-
-        Solver solver = null;
-        String algoName = "";
-
-        switch (algoIdx) {
-            case 0 -> {
-                solver = new GBFS(heurIdx);
-                algoName = "Greedy BFS";
-            }
-            case 1 -> {
-                solver = new UCS();
-                algoName = "UCS";
-            }
-            case 2 -> {
-                solver = new AStar(heurIdx);
-                algoName = "A*";
-            }
-            case 3 -> {
-                solver = new IDAStar(heurIdx);
-                algoName = "IDA*";
-            }
-        }
-
-        if (solver == null) {
-            JOptionPane.showMessageDialog(this, "Solver belum tersedia.");
-            return;
-        }
-
-        Board boardCopy = currentBoard.clone();
-
-        long start = System.currentTimeMillis();
-        List<Board> path = solver.solveAndReturnPath(boardCopy);
-        long end = System.currentTimeMillis();
-
-        if (path == null || path.size() <= 0) {
-            JOptionPane.showMessageDialog(this, "Tidak ditemukan solusi.");
-            statusLabel.setText("Solusi tidak ditemukan.");
-            return;
-        }
-        
-        statusLabel.setText(algoName + " selesai dalam " + (end - start) + " ms, langkah: " + (path.size() - 1));
-        new AnimationManager(path, boardPanel).start();
-        
     }
 }

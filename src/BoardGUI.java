@@ -16,37 +16,38 @@ public class BoardGUI extends JPanel {
     
         int cellSize = 80;
     
-        // Ukuran total grid termasuk jika K di luar
         int totalCols = Math.max(board.cols, board.exitCol + 1);
         int totalRows = Math.max(board.rows, board.exitRow + 1);
     
         for (int i = 0; i < totalRows; i++) {
             for (int j = 0; j < totalCols; j++) {
-                // Ambil isi sel atau default '.'
+                // Default isi '.'
                 char c = (i < board.rows && j < board.cols) ? board.grid[i][j] : '.';
     
-                // Jika ini titik exit 'K', override
-                if (i == board.exitRow && j == board.exitCol) {
-                    c = 'K';
-                }
+                // Override jika sel ini adalah titik keluar
+                boolean isExit = (i == board.exitRow && j == board.exitCol);
+                if (isExit) c = 'K';
     
                 Color fillColor;
     
                 if (c == 'K') {
                     fillColor = Color.GREEN;
                 }
- 
+                // Jika K berada di luar kolom kiri
+                else if (board.exitCol < 0 && j == 0) {
+                    fillColor = Color.LIGHT_GRAY;
+                }
+                // Jika K berada di luar kolom kanan
                 else if (board.exitCol >= board.cols && j == board.exitCol) {
-                    fillColor = new Color(220, 220, 220);
+                    fillColor = Color.LIGHT_GRAY;
                 }
-        
+                // Jika K berada di luar baris atas
+                else if (board.exitRow < 0 && i == 0) {
+                    fillColor = Color.LIGHT_GRAY;
+                }
+                // Jika K berada di luar baris bawah
                 else if (board.exitRow >= board.rows && i == board.exitRow) {
-                    fillColor = new Color(220, 220, 220);
-                }
-
-                else if (board.exitRow < board.rows && board.exitCol < board.cols &&
-                         i == board.exitRow && j != board.exitCol) {
-                    fillColor = new Color(220, 220, 220);
+                    fillColor = Color.LIGHT_GRAY;
                 }
                 else {
                     fillColor = switch (c) {

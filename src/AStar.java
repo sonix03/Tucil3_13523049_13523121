@@ -94,9 +94,6 @@ public class AStar implements Solver {
                             int newH = Heuristic.calculate(newBoard, heuristicType);
                             Node neighbor = new Node(newBoard, current, piece.name, dir, newG, newH);
                             openSet.add(neighbor);
-                            // Jika newBoardKey ada di closedSet, A* dengan reopening akan menghapusnya dari closedSet.
-                            // Namun, dengan bestCost, ini ditangani dengan hanya menambahkan jika path baru lebih baik.
-                            // closedSet.remove(newBoardKey); // Untuk A* varian tertentu
                         }
                     }
                 }
@@ -115,65 +112,59 @@ public class AStar implements Solver {
     @Override
     public List<Board> solveAndReturnPath(Board start) {
         nodesExpanded = 0;
-
+    
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         Set<String> closedSet = new HashSet<>();
         Map<String, Integer> bestCost = new HashMap<>();
-
+    
         int hVal = Heuristic.calculate(start, heuristicType);
         Node startNode = new Node(start, null, '\0', '\0', 0, hVal);
         openSet.add(startNode);
         String startKey = getBoardKey(start);
         bestCost.put(startKey, 0);
-
+    
         System.out.println("A* dengan heuristik " + Heuristic.getName(heuristicType) + " (mencari path list)");
-
+    
         Node solutionNode = null;
-
+    
         while (!openSet.isEmpty()) {
             Node current = openSet.poll();
             nodesExpanded++;
-
+    
             if (isGoalState(current.board)) {
                 solutionNode = current;
                 break;
             }
-
+    
             String boardKey = getBoardKey(current.board);
-            if (current.g > bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) {
-                 continue;
+            if (closedSet.contains(boardKey) && current.g >= bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) {
+                continue;
             }
-            closedSet.add(boardKey); // Tambahkan ke closedSet setelah diambil dari openSet
-
+            closedSet.add(boardKey);
+    
             for (Piece piece : current.board.pieces) {
                 for (char dir : priorityDirs) {
                     if (canMove(current.board, piece.name, dir)) {
                         Board newBoard = move(current.board, piece.name, dir);
                         String newBoardKey = getBoardKey(newBoard);
                         int newG = current.g + 1;
-
+    
                         if (newG < bestCost.getOrDefault(newBoardKey, Integer.MAX_VALUE)) {
                             bestCost.put(newBoardKey, newG);
                             int newH = Heuristic.calculate(newBoard, heuristicType);
                             Node neighbor = new Node(newBoard, current, piece.name, dir, newG, newH);
                             openSet.add(neighbor);
-                             // Jika state sudah di closedSet tapi ditemukan path lebih baik, A* tertentu akan re-open.
-                            // Namun, dengan bestCost, kita memastikan hanya path terbaik yang dipertimbangkan.
-                            // Jika heuristic konsisten, re-opening closed nodes tidak perlu.
-                            if(closedSet.contains(newBoardKey)){
-                                // closedSet.remove(newBoardKey); // Hapus dari closed jika akan re-open
-                            }
                         }
                     }
                 }
             }
         }
-
+    
         if (solutionNode == null) {
             System.out.println("Tidak ditemukan solusi!");
             return new ArrayList<>();
         }
-
+        
         List<Board> boardPath = new ArrayList<>();
         Node tempNode = solutionNode;
         while (tempNode != null) {
@@ -181,13 +172,14 @@ public class AStar implements Solver {
             tempNode = tempNode.parent;
         }
         Collections.reverse(boardPath);
-
+        
         List<SummarizedStep> summarizedPath = getSummarizedPath(solutionNode);
         System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
         System.out.println("Node yang dieksplorasi: " + nodesExpanded);
-
+        
         return boardPath;
     }
+    
 
     private List<SummarizedStep> getSummarizedPath(Node solutionNode) {
         List<SummarizedStep> summarizedSteps = new ArrayList<>();
