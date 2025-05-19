@@ -1,36 +1,436 @@
 A* Search dengan heuristik Obstacle-aware Distance
 ------------------------------------
-Langkah 1: J-atas (g=1, h=4, f=5)
-A A B . . F
-. . B C D F
-G P P C D F
-G H J I I I
-G H J . . .
-L L . M M .
+Langkah 1: D-kiri (g=1, h=5, f=6)
+A A B D D .
+C C B . E .
+F . P P E .
+F H H H E G
+F . . J . G
+L L . J I I
 
-Langkah 2: L-kanan (g=2, h=4, f=6)
-A A B . . F
-. . B C D F
-G P P C D F
-G H J I I I
-G H J . . .
-. L L M M .
+Langkah 2: L-kanan (g=2, h=5, f=7)
+A A B D D .
+C C B . E .
+F . P P E .
+F H H H E G
+F . . J . G
+. L L J I I
 
-Langkah 3: G-bawah (g=3, h=2, f=5)
-A A B . . F
-. . B C D F
-. P P C D F
-G H J I I I
-G H J . . .
-G L L M M .
+Langkah 3: F-bawah (g=3, h=5, f=8)
+A A B D D .
+C C B . E .
+. . P P E .
+F H H H E G
+F . . J . G
+F L L J I I
 
-Langkah 4: P-kiri (g=4, h=1, f=5)
-A A B . . F
-. . B C D F
-P P . C D F
-G H J I I I
-G H J . . .
-G L L M M .
+Langkah 4: P-kiri 2 kali (g=5, h=7, f=12)
+A A B D D .
+C C B . E .
+P P . . E .
+F H H H E G
+F . . J . G
+F L L J I I
 
-Solusi ditemukan dalam 4 langkah (ringkas).
-Node yang dieksplorasi: 11
+Langkah 5: B-bawah (g=6, h=9, f=15)
+A A . D D .
+C C B . E .
+P P B . E .
+F H H H E G
+F . . J . G
+F L L J I I
+
+Langkah 6: D-kiri (g=7, h=9, f=16)
+A A D D . .
+C C B . E .
+P P B . E .
+F H H H E G
+F . . J . G
+F L L J I I
+
+Langkah 7: E-atas (g=8, h=9, f=17)
+A A D D E .
+C C B . E .
+P P B . E .
+F H H H . G
+F . . J . G
+F L L J I I
+
+Langkah 8: H-kanan (g=9, h=9, f=18)
+A A D D E .
+C C B . E .
+P P B . E .
+F . H H H G
+F . . J . G
+F L L J I I
+
+Langkah 9: G-atas 2 kali (g=11, h=11, f=22)
+A A D D E .
+C C B . E G
+P P B . E G
+F . H H H .
+F . . J . .
+F L L J I I
+
+Langkah 10: H-kanan (g=12, h=11, f=23)
+A A D D E .
+C C B . E G
+P P B . E G
+F . . H H H
+F . . J . .
+F L L J I I
+
+Langkah 11: B-bawah 2 kali (g=14, h=9, f=23)
+A A D D E .
+C C . . E G
+P P . . E G
+F . B H H H
+F . B J . .
+F L L J I I
+
+Langkah 12: P-kanan (g=15, h=8, f=23)
+A A D D E .
+C C . . E G
+. P P . E G
+F . B H H H
+F . B J . .
+F L L J I I
+
+Langkah 13: F-atas (g=16, h=8, f=24)
+A A D D E .
+C C . . E G
+F P P . E G
+F . B H H H
+F . B J . .
+. L L J I I
+
+Langkah 14: L-kiri (g=17, h=8, f=25)
+A A D D E .
+C C . . E G
+F P P . E G
+F . B H H H
+F . B J . .
+L L . J I I
+
+Langkah 15: B-bawah (g=18, h=8, f=26)
+A A D D E .
+C C . . E G
+F P P . E G
+F . . H H H
+F . B J . .
+L L B J I I
+
+Langkah 16: H-kiri 2 kali (g=20, h=8, f=28)
+A A D D E .
+C C . . E G
+F P P . E G
+F H H H . .
+F . B J . .
+L L B J I I
+
+Langkah 17: E-bawah (g=21, h=8, f=29)
+A A D D . .
+C C . . E G
+F P P . E G
+F H H H E .
+F . B J . .
+L L B J I I
+
+Langkah 18: C-kanan (g=22, h=8, f=30)
+A A D D . .
+. C C . E G
+F P P . E G
+F H H H E .
+F . B J . .
+L L B J I I
+
+Langkah 19: F-atas (g=23, h=8, f=31)
+A A D D . .
+F C C . E G
+F P P . E G
+F H H H E .
+. . B J . .
+L L B J I I
+
+Langkah 20: D-kanan (g=24, h=8, f=32)
+A A . D D .
+F C C . E G
+F P P . E G
+F H H H E .
+. . B J . .
+L L B J I I
+
+Langkah 21: A-kanan (g=25, h=8, f=33)
+. A A D D .
+F C C . E G
+F P P . E G
+F H H H E .
+. . B J . .
+L L B J I I
+
+Langkah 22: F-atas (g=26, h=8, f=34)
+F A A D D .
+F C C . E G
+F P P . E G
+. H H H E .
+. . B J . .
+L L B J I I
+
+Langkah 23: H-kiri (g=27, h=8, f=35)
+F A A D D .
+F C C . E G
+F P P . E G
+H H H . E .
+. . B J . .
+L L B J I I
+
+Langkah 24: J-atas 3 kali (g=30, h=10, f=40)
+F A A D D .
+F C C J E G
+F P P J E G
+H H H . E .
+. . B . . .
+L L B . I I
+
+Langkah 25: H-kanan (g=31, h=10, f=41)
+F A A D D .
+F C C J E G
+F P P J E G
+. H H H E .
+. . B . . .
+L L B . I I
+
+Langkah 26: F-bawah (g=32, h=10, f=42)
+. A A D D .
+F C C J E G
+F P P J E G
+F H H H E .
+. . B . . .
+L L B . I I
+
+Langkah 27: A-kiri (g=33, h=10, f=43)
+A A . D D .
+F C C J E G
+F P P J E G
+F H H H E .
+. . B . . .
+L L B . I I
+
+Langkah 28: D-kiri (g=34, h=10, f=44)
+A A D D . .
+F C C J E G
+F P P J E G
+F H H H E .
+. . B . . .
+L L B . I I
+
+Langkah 29: E-atas (g=35, h=10, f=45)
+A A D D E .
+F C C J E G
+F P P J E G
+F H H H . .
+. . B . . .
+L L B . I I
+
+Langkah 30: H-kanan 2 kali (g=37, h=10, f=47)
+A A D D E .
+F C C J E G
+F P P J E G
+F . . H H H
+. . B . . .
+L L B . I I
+
+Langkah 31: F-bawah (g=38, h=10, f=48)
+A A D D E .
+. C C J E G
+F P P J E G
+F . . H H H
+F . B . . .
+L L B . I I
+
+Langkah 32: B-atas (g=39, h=10, f=49)
+A A D D E .
+. C C J E G
+F P P J E G
+F . B H H H
+F . B . . .
+L L . . I I
+
+Langkah 33: L-kanan (g=40, h=10, f=50)
+A A D D E .
+. C C J E G
+F P P J E G
+F . B H H H
+F . B . . .
+. L L . I I
+
+Langkah 34: C-kiri (g=41, h=10, f=51)
+A A D D E .
+C C . J E G
+F P P J E G
+F . B H H H
+F . B . . .
+. L L . I I
+
+Langkah 35: F-bawah (g=42, h=10, f=52)
+A A D D E .
+C C . J E G
+. P P J E G
+F . B H H H
+F . B . . .
+F L L . I I
+
+Langkah 36: P-kiri (g=43, h=11, f=54)
+A A D D E .
+C C . J E G
+P P . J E G
+F . B H H H
+F . B . . .
+F L L . I I
+
+Langkah 37: B-atas 2 kali (g=45, h=13, f=58)
+A A D D E .
+C C B J E G
+P P B J E G
+F . . H H H
+F . . . . .
+F L L . I I
+
+Langkah 38: H-kiri (g=46, h=13, f=59)
+A A D D E .
+C C B J E G
+P P B J E G
+F . H H H .
+F . . . . .
+F L L . I I
+
+Langkah 39: G-bawah 2 kali (g=48, h=11, f=59)
+A A D D E .
+C C B J E .
+P P B J E .
+F . H H H G
+F . . . . G
+F L L . I I
+
+Langkah 40: H-kiri (g=49, h=11, f=60)
+A A D D E .
+C C B J E .
+P P B J E .
+F H H H . G
+F . . . . G
+F L L . I I
+
+Langkah 41: E-bawah (g=50, h=11, f=61)
+A A D D . .
+C C B J E .
+P P B J E .
+F H H H E G
+F . . . . G
+F L L . I I
+
+Langkah 42: D-kanan (g=51, h=11, f=62)
+A A . D D .
+C C B J E .
+P P B J E .
+F H H H E G
+F . . . . G
+F L L . I I
+
+Langkah 43: B-atas (g=52, h=9, f=61)
+A A B D D .
+C C B J E .
+P P . J E .
+F H H H E G
+F . . . . G
+F L L . I I
+
+Langkah 44: P-kanan (g=53, h=8, f=61)
+A A B D D .
+C C B J E .
+. P P J E .
+F H H H E G
+F . . . . G
+F L L . I I
+
+Langkah 45: D-kanan (g=54, h=8, f=62)
+A A B . D D
+C C B J E .
+. P P J E .
+F H H H E G
+F . . . . G
+F L L . I I
+
+Langkah 46: J-atas (g=55, h=6, f=61)
+A A B J D D
+C C B J E .
+. P P . E .
+F H H H E G
+F . . . . G
+F L L . I I
+
+Langkah 47: P-kanan (g=56, h=5, f=61)
+A A B J D D
+C C B J E .
+. . P P E .
+F H H H E G
+F . . . . G
+F L L . I I
+
+Langkah 48: F-atas (g=57, h=5, f=62)
+A A B J D D
+C C B J E .
+F . P P E .
+F H H H E G
+F . . . . G
+. L L . I I
+
+Langkah 49: I-kiri (g=58, h=5, f=63)
+A A B J D D
+C C B J E .
+F . P P E .
+F H H H E G
+F . . . . G
+. L L I I .
+
+Langkah 50: L-kiri (g=59, h=5, f=64)
+A A B J D D
+C C B J E .
+F . P P E .
+F H H H E G
+F . . . . G
+L L . I I .
+
+Langkah 51: E-bawah (g=60, h=5, f=65)
+A A B J D D
+C C B J . .
+F . P P E .
+F H H H E G
+F . . . E G
+L L . I I .
+
+Langkah 52: I-kiri (g=61, h=5, f=66)
+A A B J D D
+C C B J . .
+F . P P E .
+F H H H E G
+F . . . E G
+L L I I . .
+
+Langkah 53: E-bawah (g=62, h=3, f=65)
+A A B J D D
+C C B J . .
+F . P P . .
+F H H H E G
+F . . . E G
+L L I I E .
+
+Langkah 54: P-kanan 2 kali (g=64, h=1, f=65)
+A A B J D D
+C C B J . .
+F . . . P P
+F H H H E G
+F . . . E G
+L L I I E .
+
+Solusi ditemukan dalam 54 langkah (ringkas).
+Node yang dieksplorasi: 3867

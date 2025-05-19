@@ -1,36 +1,28 @@
 IDA* Search dengan heuristik Obstacle-aware Distance
 ------------------------------------
-Langkah 1: J-atas (g=1, h=4, f=5)
-A A B . . F
-. . B C D F
-G P P C D F
-G H J I I I
-G H J . . .
+Langkah 1: P-atas (g=1, h=4, f=5)
+A A B B . F
+. . P C D F
+G . P C D F
+G H . I I I
+G H J J . .
 L L . M M .
 
-Langkah 2: L-kanan (g=2, h=4, f=6)
-A A B . . F
-. . B C D F
-G P P C D F
-G H J I I I
-G H J . . .
-. L L M M .
+Langkah 2: B-kanan (g=2, h=2, f=4)
+A A . B B F
+. . P C D F
+G . P C D F
+G H . I I I
+G H J J . .
+L L . M M .
 
-Langkah 3: G-bawah (g=3, h=2, f=5)
-A A B . . F
-. . B C D F
-. P P C D F
-G H J I I I
-G H J . . .
-G L L M M .
+Langkah 3: P-atas (g=3, h=1, f=4)
+A A P B B F
+. . P C D F
+G . . C D F
+G H . I I I
+G H J J . .
+L L . M M .
 
-Langkah 4: P-kiri (g=4, h=1, f=5)
-A A B . . F
-. . B C D F
-P P . C D F
-G H J I I I
-G H J . . .
-G L L M M .
-
-Solusi ditemukan dalam 4 langkah (ringkas).
-Total Node yang dieksplorasi: 246
+Solusi ditemukan dalam 3 langkah (ringkas).
+Total Node yang dieksplorasi: 5
