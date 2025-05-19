@@ -1,4 +1,8 @@
 import java.util.*;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.File;
 
 public class AStar implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
@@ -10,7 +14,7 @@ public class AStar implements Solver {
         char piece;
         char direction;
         int moveCount;
-        Board boardState; 
+        Board boardState;
         int g;
         int h;
         // f = g + h
@@ -34,9 +38,25 @@ public class AStar implements Solver {
         this.heuristicType = heuristicType;
     }
 
+    private String getAlgorithmName() {
+        return "A* Search";
+    }
+
+    private boolean needsHeuristic() {
+        return true;
+    }
+
+    private void ensureTestDirectoryExists() {
+        File directory = new File("test");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+    }
+
     @Override
     public void solve(Board start) {
         nodesExpanded = 0;
+        lastSummarizedStepCount = 0;
 
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         Set<String> closedSet = new HashSet<>();
@@ -48,7 +68,7 @@ public class AStar implements Solver {
         String startKey = getBoardKey(start);
         bestCost.put(startKey, 0);
 
-        System.out.println("A* dengan heuristik " + Heuristic.getName(heuristicType));
+        System.out.println(getAlgorithmName() + " dengan heuristik " + Heuristic.getName(heuristicType));
 
         Node solutionNode = null;
 
@@ -66,21 +86,16 @@ public class AStar implements Solver {
             if (closedSet.contains(boardKey) && current.g >= bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) {
                 continue;
             }
-
-            if (current.g > bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) { 
-                 continue;
+             if (current.g > bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) { 
+                continue;
             }
-
-
             closedSet.add(boardKey);
-           
-
+            
             for (Piece piece : current.board.pieces) {
                 for (char dir : priorityDirs) {
                     if (canMove(current.board, piece.name, dir)) {
                         Board newBoard = move(current.board, piece.name, dir);
                         String newBoardKey = getBoardKey(newBoard);
-
                         int newG = current.g + 1;
 
                         if (newG < bestCost.getOrDefault(newBoardKey, Integer.MAX_VALUE)) {
@@ -96,16 +111,25 @@ public class AStar implements Solver {
 
         if (solutionNode != null) {
             List<SummarizedStep> summarizedPath = getSummarizedPath(solutionNode);
+            this.lastSummarizedStepCount = summarizedPath.size();
             printSummarizedSolution(summarizedPath);
-            System.out.println("Node yang dieksplorasi: " + nodesExpanded);
         } else {
             System.out.println("Tidak ditemukan solusi!");
+            ensureTestDirectoryExists();
+            try (PrintWriter writer = new PrintWriter(new FileWriter("test/output.txt", false))) {
+                writer.println(getAlgorithmName() + " dengan heuristik " + Heuristic.getName(heuristicType));
+                writer.println("Tidak ditemukan solusi!");
+                writer.println("Node yang dieksplorasi: " + nodesExpanded);
+            } catch (IOException e) {
+                System.err.println("Gagal menulis ke file output.txt (solusi tidak ditemukan): " + e.getMessage());
+            }
         }
     }
 
     @Override
     public List<Board> solveAndReturnPath(Board start) {
         nodesExpanded = 0;
+        lastSummarizedStepCount = 0;
     
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         Set<String> closedSet = new HashSet<>();
@@ -117,7 +141,7 @@ public class AStar implements Solver {
         String startKey = getBoardKey(start);
         bestCost.put(startKey, 0);
     
-        System.out.println("A* dengan heuristik " + Heuristic.getName(heuristicType) + " (mencari path list)");
+        System.out.println(getAlgorithmName() + " dengan heuristik " + Heuristic.getName(heuristicType) + " (mencari path list)");
     
         Node solutionNode = null;
     
@@ -132,6 +156,9 @@ public class AStar implements Solver {
     
             String boardKey = getBoardKey(current.board);
             if (closedSet.contains(boardKey) && current.g >= bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) {
+                continue;
+            }
+             if (current.g > bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) { 
                 continue;
             }
             closedSet.add(boardKey);
@@ -156,6 +183,14 @@ public class AStar implements Solver {
     
         if (solutionNode == null) {
             System.out.println("Tidak ditemukan solusi!");
+            ensureTestDirectoryExists();
+            try (PrintWriter writer = new PrintWriter(new FileWriter("test/output.txt", false))) {
+                writer.println(getAlgorithmName() + " dengan heuristik " + Heuristic.getName(this.heuristicType));
+                writer.println("Tidak ditemukan solusi!");
+                writer.println("Node yang dieksplorasi: " + nodesExpanded);
+            } catch (IOException e) {
+                System.err.println("Gagal menulis ke file output.txt (solusi tidak ditemukan): " + e.getMessage());
+            }
             return new ArrayList<>();
         }
         
@@ -168,9 +203,8 @@ public class AStar implements Solver {
         Collections.reverse(boardPath);
         
         List<SummarizedStep> summarizedPath = getSummarizedPath(solutionNode);
-        lastSummarizedStepCount = summarizedPath.size();
-        System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
-        System.out.println("Node yang dieksplorasi: " + nodesExpanded);
+        this.lastSummarizedStepCount = summarizedPath.size();
+        printSummarizedSolution(summarizedPath); // Cetak dan simpan solusi
         
         return boardPath;
     }
@@ -180,7 +214,6 @@ public class AStar implements Solver {
         return lastSummarizedStepCount;
     }
     
-
     private List<SummarizedStep> getSummarizedPath(Node solutionNode) {
         List<SummarizedStep> summarizedSteps = new ArrayList<>();
         if (solutionNode == null) {
@@ -223,23 +256,51 @@ public class AStar implements Solver {
             }
         }
         if (moveCount > 0) {
-             summarizedSteps.add(new SummarizedStep(currentPiece, currentDirection, moveCount, lastBoardInSequence, gVal, hVal));
+            summarizedSteps.add(new SummarizedStep(currentPiece, currentDirection, moveCount, lastBoardInSequence, gVal, hVal));
         }
-
         return summarizedSteps;
     }
 
     private void printSummarizedSolution(List<SummarizedStep> summarizedPath) {
-        int stepNumber = 1;
-        for (SummarizedStep step : summarizedPath) {
-            System.out.println("Langkah " + stepNumber + ": " + step.getDisplay(getDirName(step.direction)));
-            step.boardState.print();
-            System.out.println();
-            stepNumber++;
+        ensureTestDirectoryExists();
+        try (PrintWriter writer = new PrintWriter(new FileWriter("test/outputAStar.txt", false))) {
+            String algoHeader = getAlgorithmName() + " dengan heuristik " + Heuristic.getName(heuristicType);
+            System.out.println("\n" + algoHeader); // Already printed by solve/solveAndReturnPath, but good for consistency if called standalone
+            writer.println(algoHeader);
+            writer.println("------------------------------------");
+
+            int stepNumber = 1;
+            for (SummarizedStep step : summarizedPath) {
+                String stepDisplay = "Langkah " + stepNumber + ": " + step.getDisplay(getDirName(step.direction));
+                System.out.println(stepDisplay);
+                writer.println(stepDisplay);
+
+                step.boardState.print(); // Prints to console
+                // Write board state to file
+                for (int r = 0; r < step.boardState.rows; r++) {
+                    for (int c = 0; c < step.boardState.cols; c++) {
+                        writer.print(step.boardState.grid[r][c] + (c == step.boardState.cols - 1 ? "" : " "));
+                    }
+                    writer.println();
+                }
+                System.out.println();
+                writer.println();
+                stepNumber++;
+            }
+            String summary = "Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).";
+            System.out.println(summary);
+            writer.println(summary);
+
+            String nodesExploredStr = "Node yang dieksplorasi: " + nodesExpanded;
+            System.out.println(nodesExploredStr);
+            writer.println(nodesExploredStr);
+
+        } catch (IOException e) {
+            System.err.println("Gagal menulis langkah solusi ke file outputAStar.txt: " + e.getMessage());
         }
-        System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
     }
 
+    // ... sisa metode (isGoalState, getBoardKey, getDirName, canMove, move, Node class) tetap sama ...
     private boolean isGoalState(Board board) {
         if (board.primaryPiece == null || board.exitRow == -1) return false;
         for (int[] cell : board.primaryPiece.cells) {
