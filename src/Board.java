@@ -31,26 +31,29 @@ public class Board {
         while ((line = br.readLine()) != null) {
             // Jika masih dalam grid, isi grid dan deteksi bidak
             if (currentRow < rows) {
+                int logicalCol = 0; // indeks kolom sebenarnya (hanya untuk j < cols)
+
                 for (int j = 0; j < line.length(); j++) {
                     char c = line.charAt(j);
-
-                    // Isi grid jika dalam batas
-                    if (j < cols) {
-                        grid[currentRow][j] = c;
-                    }
-
-                    // Catat posisi exit meskipun di luar grid
+                
+                    // Catat posisi K baik di dalam atau di luar grid
                     if (c == 'K') {
                         exitRow = currentRow;
-                        exitCol = j;
+                        exitCol = logicalCol;
                     }
-
-                    // Catat bidak jika dalam grid
-                    if (c != '.' && c != 'K' && j < cols) {
-                        tempPieceCells.putIfAbsent(c, new ArrayList<>());
-                        tempPieceCells.get(c).add(new int[]{currentRow, j});
+                
+                    // Simpan hanya jika dalam batas grid
+                    if (logicalCol < cols) {
+                        grid[currentRow][logicalCol] = c;
+                
+                        if (c != '.' && c != 'K') {
+                            tempPieceCells.putIfAbsent(c, new ArrayList<>());
+                            tempPieceCells.get(c).add(new int[]{currentRow, logicalCol});
+                        }
+                
+                        logicalCol++;
                     }
-                }
+                }                
 
                 // Jika baris lebih pendek dari grid, isi titik
                 for (int j = line.length(); j < cols; j++) {
@@ -188,7 +191,6 @@ public class Board {
                 copy.primaryPiece = clonedPiece;
             }
         }
-
         copy.exitRow = this.exitRow;
         copy.exitCol = this.exitCol;
         return copy;

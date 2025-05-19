@@ -139,6 +139,7 @@ public class GUIFrame extends JFrame {
     private void initBottomPanel() {
         JPanel bottom = new JPanel(new BorderLayout());
         statusLabel = new JLabel("Pilih file untuk mulai.");
+        statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
         bottom.add(statusLabel, BorderLayout.CENTER);
         add(bottom, BorderLayout.SOUTH);
     }

@@ -1,9 +1,9 @@
-6 7
+7 6
 14
 Q...RR 
 .AABB. 
 .GGHHX 
 PPLMNXK
 ..LMN. 
-.D.E.F 
+.DLE.F 
 SS..TT  

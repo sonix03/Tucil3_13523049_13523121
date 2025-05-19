@@ -16,58 +16,72 @@ public class BoardGUI extends JPanel {
     
         int cellSize = 80;
     
-        int totalCols = Math.max(board.cols, board.exitCol + 1);
-        int totalRows = Math.max(board.rows, board.exitRow + 1);
+        int totalCols = board.cols;
+        int totalRows = board.rows;
+    
+        int boardWidth = totalCols * cellSize;
+        int boardHeight = totalRows * cellSize;
+    
+        int offsetX = (getWidth() - boardWidth) / 2;
+        int offsetY = (getHeight() - boardHeight) / 2;
     
         for (int i = 0; i < totalRows; i++) {
             for (int j = 0; j < totalCols; j++) {
-                // Default isi '.'
-                char c = (i < board.rows && j < board.cols) ? board.grid[i][j] : '.';
+                char c = board.grid[i][j];
     
-                // Override jika sel ini adalah titik keluar
-                boolean isExit = (i == board.exitRow && j == board.exitCol);
-                if (isExit) c = 'K';
+                Color fillColor = switch (c) {
+                    case '.' -> Color.WHITE;
+                    case 'P' -> Color.RED;
+                    default -> Color.LIGHT_GRAY;
+                };
     
-                Color fillColor;
-    
-                if (c == 'K') {
-                    fillColor = Color.GREEN;
-                }
-                // Jika K berada di luar kolom kiri
-                else if (board.exitCol < 0 && j == 0) {
-                    fillColor = Color.LIGHT_GRAY;
-                }
-                // Jika K berada di luar kolom kanan
-                else if (board.exitCol >= board.cols && j == board.exitCol) {
-                    fillColor = Color.LIGHT_GRAY;
-                }
-                // Jika K berada di luar baris atas
-                else if (board.exitRow < 0 && i == 0) {
-                    fillColor = Color.LIGHT_GRAY;
-                }
-                // Jika K berada di luar baris bawah
-                else if (board.exitRow >= board.rows && i == board.exitRow) {
-                    fillColor = Color.LIGHT_GRAY;
-                }
-                else {
-                    fillColor = switch (c) {
-                        case '.' -> Color.WHITE;
-                        case 'P' -> Color.RED;
-                        default -> Color.LIGHT_GRAY;
-                    };
-                }
+                int x = offsetX + j * cellSize;
+                int y = offsetY + i * cellSize;
     
                 g.setColor(fillColor);
-                g.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+                g.fillRect(x, y, cellSize, cellSize);
                 g.setColor(Color.BLACK);
-                g.drawRect(j * cellSize, i * cellSize, cellSize, cellSize);
+                g.drawRect(x, y, cellSize, cellSize);
     
                 if (c != '.' && c != 'K') {
                     g.setColor(Color.BLACK);
-                    g.drawString(String.valueOf(c), j * cellSize + 35, i * cellSize + 45);
+                    g.drawString(String.valueOf(c), x + 35, y + 45);
                 }
             }
         }
+
+        if (board.exitCol <= 0 && board.exitRow >= 0 && board.exitRow < board.rows) {
+            // K di kiri luar grid
+            int x = offsetX - cellSize / 2;
+            int y = offsetY + board.exitRow * cellSize;
+            g.setColor(Color.GREEN);
+            g.fillRect(x, y, cellSize / 2, cellSize);
+            g.setColor(Color.BLACK);
+            g.drawRect(x, y, cellSize / 2, cellSize);
+        } else if (board.exitCol >= board.cols && board.exitRow >= 0 && board.exitRow < board.rows) {
+            // K di kanan luar grid
+            int x = offsetX + board.cols * cellSize;
+            int y = offsetY + board.exitRow * cellSize;
+            g.setColor(Color.GREEN);
+            g.fillRect(x, y, cellSize / 2, cellSize);
+            g.setColor(Color.BLACK);
+            g.drawRect(x, y, cellSize / 2, cellSize);
+        } else if (board.exitRow <= 0 && board.exitCol >= 0 && board.exitCol < board.cols) {
+            // K di atas luar grid
+            int x = offsetX + board.exitCol * cellSize;
+            int y = offsetY - cellSize / 2;
+            g.setColor(Color.GREEN);
+            g.fillRect(x, y, cellSize, cellSize / 2);
+            g.setColor(Color.BLACK);
+            g.drawRect(x, y, cellSize, cellSize / 2);
+        } else if (board.exitRow >= board.rows && board.exitCol >= 0 && board.exitCol < board.cols) {
+            // K di bawah luar grid
+            int x = offsetX + board.exitCol * cellSize;
+            int y = offsetY + board.rows * cellSize;
+            g.setColor(Color.GREEN);
+            g.fillRect(x, y, cellSize, cellSize / 2);
+            g.setColor(Color.BLACK);
+            g.drawRect(x, y, cellSize, cellSize / 2);
+        }
     }
-    
 }
