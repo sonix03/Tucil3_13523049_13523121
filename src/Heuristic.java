@@ -76,14 +76,12 @@ public class Heuristic {
      * Menghitung jarak dengan mempertimbangkan rintangan
      */
     private static int calculateObstacleAware(Board board) {
-        // Hitung jarak Manhattan dan tambahkan penalti untuk setiap bidak lain yang menghalangi
         int baseDistance = calculateManhattan(board);
         int obstacles = 0;
-        
-        // Temukan sel primary piece yang terdekat ke exit
+    
         int[] closestCell = null;
         int minDistance = Integer.MAX_VALUE;
-        
+    
         for (int[] cell : board.primaryPiece.cells) {
             int distance = Math.abs(cell[0] - board.exitRow) + Math.abs(cell[1] - board.exitCol);
             if (distance < minDistance) {
@@ -91,55 +89,53 @@ public class Heuristic {
                 closestCell = cell;
             }
         }
-        
+    
         if (closestCell == null) return baseDistance;
-        
-        // Hitung jumlah bidak yang menghalangi jalur langsung ke exit
+    
+        int row = closestCell[0];
+        int col = closestCell[1];
+        int exRow = board.exitRow;
+        int exCol = board.exitCol;
+    
         // Vertical path
-        if (closestCell[1] == board.exitCol) {
-            int start = Math.min(closestCell[0], board.exitRow);
-            int end = Math.max(closestCell[0], board.exitRow);
-            
+        if (col == exCol) {
+            int start = Math.min(row, exRow);
+            int end = Math.max(row, exRow);
             for (int i = start; i <= end; i++) {
-                if (board.grid[i][closestCell[1]] != '.' && 
-                    board.grid[i][closestCell[1]] != 'P' && 
-                    board.grid[i][closestCell[1]] != 'K') {
-                    obstacles++;
+                if (i >= 0 && i < board.rows && col >= 0 && col < board.cols) {
+                    char ch = board.grid[i][col];
+                    if (ch != '.' && ch != 'P' && ch != 'K') obstacles++;
                 }
             }
         }
         // Horizontal path
-        else if (closestCell[0] == board.exitRow) {
-            int start = Math.min(closestCell[1], board.exitCol);
-            int end = Math.max(closestCell[1], board.exitCol);
-            
+        else if (row == exRow) {
+            int start = Math.min(col, exCol);
+            int end = Math.max(col, exCol);
             for (int j = start; j <= end; j++) {
-                if (board.grid[closestCell[0]][j] != '.' && 
-                    board.grid[closestCell[0]][j] != 'P' && 
-                    board.grid[closestCell[0]][j] != 'K') {
-                    obstacles++;
+                if (row >= 0 && row < board.rows && j >= 0 && j < board.cols) {
+                    char ch = board.grid[row][j];
+                    if (ch != '.' && ch != 'P' && ch != 'K') obstacles++;
                 }
             }
         }
-        // Diagonal path (penalti untuk bidak di persegi panjang antara primary piece dan exit)
+        // Diagonal/umum (cek kotak dari primary ke exit)
         else {
-            int minRow = Math.min(closestCell[0], board.exitRow);
-            int maxRow = Math.max(closestCell[0], board.exitRow);
-            int minCol = Math.min(closestCell[1], board.exitCol);
-            int maxCol = Math.max(closestCell[1], board.exitCol);
-            
+            int minRow = Math.min(row, exRow);
+            int maxRow = Math.max(row, exRow);
+            int minCol = Math.min(col, exCol);
+            int maxCol = Math.max(col, exCol);
             for (int i = minRow; i <= maxRow; i++) {
                 for (int j = minCol; j <= maxCol; j++) {
-                    if (board.grid[i][j] != '.' && 
-                        board.grid[i][j] != 'P' && 
-                        board.grid[i][j] != 'K') {
-                        obstacles++;
+                    if (i >= 0 && i < board.rows && j >= 0 && j < board.cols) {
+                        char ch = board.grid[i][j];
+                        if (ch != '.' && ch != 'P' && ch != 'K') obstacles++;
                     }
                 }
             }
         }
-        
-        // Tambahkan penalti untuk setiap bidak yang menghalangi
+    
         return baseDistance + obstacles * 2;
     }
+    
 }
