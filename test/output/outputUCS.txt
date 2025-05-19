@@ -1,20 +1,60 @@
 Uniform Cost Search (UCS)
 ------------------------------------
-Langkah 1: J-kanan (cost=1)
+Langkah 1: I-kiri (cost=1)
 A A B . . F
 . . B C D F
-G . P C D F
-G H P I I I
-G H . J J .
-L L . M M .
+G P P C D F
+G H I I I .
+G H J . . .
+L L J M M .
 
-Langkah 2: P-bawah 2 kali (cost=3)
-A A B . . F
-. . B C D F
-G . . C D F
-G H . I I I
-G H P J J .
-L L P M M .
+Langkah 2: F-bawah 2 kali (cost=3)
+A A B . . .
+. . B C D .
+G P P C D F
+G H I I I F
+G H J . . F
+L L J M M .
 
-Solusi ditemukan dalam 2 langkah (ringkas).
-Node yang dieksplorasi: 79
+Langkah 3: C-atas (cost=4)
+A A B C . .
+. . B C D .
+G P P . D F
+G H I I I F
+G H J . . F
+L L J M M .
+
+Langkah 4: P-kanan (cost=5)
+A A B C . .
+. . B C D .
+G . P P D F
+G H I I I F
+G H J . . F
+L L J M M .
+
+Langkah 5: D-atas (cost=6)
+A A B C D .
+. . B C D .
+G . P P . F
+G H I I I F
+G H J . . F
+L L J M M .
+
+Langkah 6: F-bawah (cost=7)
+A A B C D .
+. . B C D .
+G . P P . .
+G H I I I F
+G H J . . F
+L L J M M F
+
+Langkah 7: P-kanan 2 kali (cost=9)
+A A B C D .
+. . B C D .
+G . . . P P
+G H I I I F
+G H J . . F
+L L J M M F
+
+Solusi ditemukan dalam 7 langkah (ringkas).
+Node yang dieksplorasi: 574
