@@ -111,7 +111,7 @@ public class GUIFrame extends JFrame {
                 return;
             }
         
-            statusLabel.setText("Selesai dalam " + (end - start) + " ms, langkah: " + solver.getLastSummarizedStepCount());
+            statusLabel.setText("Selesai dalam " + (end - start) + " ms, langkah: " + solver.getLastSummarizedStepCount() + " Node yang dieksplorasi: " + solver.getNodesExplored());
             animationManager = new AnimationManager(path, boardPanel, () -> {
                 // Callback setelah animasi selesai
                 runButton.setText("Jalankan");

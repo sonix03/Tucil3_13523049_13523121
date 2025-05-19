@@ -4,8 +4,8 @@ public class IDAStar implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
     private int heuristicType;
     private int nodesExpandedThisIteration;
-    private int totalNodesExpanded;
-    private int lastSummarizedStepCount = 0;
+    public int totalNodesExpanded = 0;
+    public int lastSummarizedStepCount = 0;
 
     private static class SummarizedStep {
         char piece;
@@ -137,6 +137,11 @@ public class IDAStar implements Solver {
     @Override
     public int getLastSummarizedStepCount() {
         return lastSummarizedStepCount;
+    }
+
+    @Override
+    public int getNodesExplored() {
+        return totalNodesExpanded;
     }
 
     

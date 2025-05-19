@@ -3,8 +3,8 @@ import java.util.*;
 public class AStar implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
     private int heuristicType;
-    private int nodesExpanded;
-    private int lastSummarizedStepCount = 0;
+    public int nodesExpanded = 0;
+    public int lastSummarizedStepCount = 0;
 
     private static class SummarizedStep {
         char piece;
@@ -180,6 +180,10 @@ public class AStar implements Solver {
         return lastSummarizedStepCount;
     }
     
+    @Override
+    public int getNodesExplored() {
+        return nodesExpanded;
+    }
 
     private List<SummarizedStep> getSummarizedPath(Node solutionNode) {
         List<SummarizedStep> summarizedSteps = new ArrayList<>();

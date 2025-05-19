@@ -6,4 +6,5 @@ public interface Solver {
     public List<Board> solveAndReturnPath(Board start);
 
     int getLastSummarizedStepCount();
+    int getNodesExplored();
 }
