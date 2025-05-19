@@ -1,4 +1,0 @@
-Greedy Best First Search (GBFS) dengan heuristik Manhattan Distance
-------------------------------------
-Solusi ditemukan dalam 0 langkah (ringkas).
-Node yang dieksplorasi: 1

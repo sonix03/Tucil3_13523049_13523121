@@ -45,7 +45,7 @@ public class GUIFrame extends JFrame {
         });
 
         fileButton.addActionListener(e -> {
-            JFileChooser fc = new JFileChooser("test/");
+            JFileChooser fc = new JFileChooser("test/input/");
             if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
                 selectedFile = fc.getSelectedFile();
                 try {

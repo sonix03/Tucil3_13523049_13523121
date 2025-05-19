@@ -1,0 +1,20 @@
+Greedy Best First Search (GBFS) dengan heuristik Obstacle-aware Distance
+------------------------------------
+Langkah 1: B-kanan (h=3)
+A A . B B F
+. . . C D F
+G . P C D F
+G H P I I I
+G H J J . .
+L L . M M .
+
+Langkah 2: P-atas 2 kali (h=1)
+A A P B B F
+. . P C D F
+G . . C D F
+G H . I I I
+G H J J . .
+L L . M M .
+
+Solusi ditemukan dalam 2 langkah (ringkas).
+Node yang dieksplorasi: 4

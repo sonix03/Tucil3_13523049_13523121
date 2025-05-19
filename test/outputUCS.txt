@@ -1,4 +1,0 @@
-Uniform Cost Search (UCS)
-------------------------------------
-Solusi ditemukan dalam 0 langkah (ringkas).
-Node yang dieksplorasi: 1

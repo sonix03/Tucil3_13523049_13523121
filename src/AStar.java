@@ -1,8 +1,8 @@
-import java.util.*;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.io.IOException;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
 
 public class AStar implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
@@ -116,7 +116,7 @@ public class AStar implements Solver {
         } else {
             System.out.println("Tidak ditemukan solusi!");
             ensureTestDirectoryExists();
-            try (PrintWriter writer = new PrintWriter(new FileWriter("test/output.txt", false))) {
+            try (PrintWriter writer = new PrintWriter(new FileWriter("test/output/output.txt", false))) {
                 writer.println(getAlgorithmName() + " dengan heuristik " + Heuristic.getName(heuristicType));
                 writer.println("Tidak ditemukan solusi!");
                 writer.println("Node yang dieksplorasi: " + nodesExpanded);
@@ -184,7 +184,7 @@ public class AStar implements Solver {
         if (solutionNode == null) {
             System.out.println("Tidak ditemukan solusi!");
             ensureTestDirectoryExists();
-            try (PrintWriter writer = new PrintWriter(new FileWriter("test/output.txt", false))) {
+            try (PrintWriter writer = new PrintWriter(new FileWriter("test/output/output.txt", false))) {
                 writer.println(getAlgorithmName() + " dengan heuristik " + Heuristic.getName(this.heuristicType));
                 writer.println("Tidak ditemukan solusi!");
                 writer.println("Node yang dieksplorasi: " + nodesExpanded);
@@ -268,7 +268,7 @@ public class AStar implements Solver {
 
     private void printSummarizedSolution(List<SummarizedStep> summarizedPath) {
         ensureTestDirectoryExists();
-        try (PrintWriter writer = new PrintWriter(new FileWriter("test/outputAStar.txt", false))) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("test/output/outputAStar.txt", false))) {
             String algoHeader = getAlgorithmName() + " dengan heuristik " + Heuristic.getName(heuristicType);
             System.out.println("\n" + algoHeader); // Already printed by solve/solveAndReturnPath, but good for consistency if called standalone
             writer.println(algoHeader);
@@ -305,15 +305,31 @@ public class AStar implements Solver {
         }
     }
 
-    // ... sisa metode (isGoalState, getBoardKey, getDirName, canMove, move, Node class) tetap sama ...
     private boolean isGoalState(Board board) {
-        if (board.primaryPiece == null || board.exitRow == -1) return false;
+        if (board.primaryPiece == null || (board.exitRow == -1 && board.exitCol == -1)) return false;
+    
         for (int[] cell : board.primaryPiece.cells) {
-            if ((cell[0] == board.exitRow && Math.abs(cell[1] - board.exitCol) == 1) ||
-                (cell[1] == board.exitCol && Math.abs(cell[0] - board.exitRow) == 1)) {
+            int r = cell[0], c = cell[1];
+    
+            // Exit di atas grid
+            if (board.exitRow == -1 && board.exitCol == c && r == 0) return true;
+    
+            // Exit di bawah grid
+            if (board.exitRow == board.rows && board.exitCol == c && r == board.rows - 1) return true;
+    
+            // Exit di kiri grid
+            if (board.exitCol == -1 && board.exitRow == r && c == 0) return true;
+    
+            // Exit di kanan grid
+            if (board.exitCol == board.cols && board.exitRow == r && c == board.cols - 1) return true;
+    
+            // Exit di dalam grid (samping P)
+            if ((r == board.exitRow && Math.abs(c - board.exitCol) == 1) ||
+                (c == board.exitCol && Math.abs(r - board.exitRow) == 1)) {
                 return true;
             }
         }
+    
         return false;
     }
 

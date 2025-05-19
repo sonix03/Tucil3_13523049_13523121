@@ -1,0 +1,28 @@
+Uniform Cost Search (UCS)
+------------------------------------
+Langkah 1: P-atas (cost=1)
+A A B B . F
+. . P C D F
+G . P C D F
+G H . I I I
+G H J J . .
+L L . M M .
+
+Langkah 2: B-kanan (cost=2)
+A A . B B F
+. . P C D F
+G . P C D F
+G H . I I I
+G H J J . .
+L L . M M .
+
+Langkah 3: P-atas (cost=3)
+A A P B B F
+. . P C D F
+G . . C D F
+G H . I I I
+G H J J . .
+L L . M M .
+
+Solusi ditemukan dalam 3 langkah (ringkas).
+Node yang dieksplorasi: 112

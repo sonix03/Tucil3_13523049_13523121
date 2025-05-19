@@ -14,8 +14,8 @@ public class Main {
         try {
             // Input nama file dari user
             
-            System.out.print("Masukkan nama file (test/): ");
-            String filePath = "test/" + scanner.nextLine();
+            System.out.print("Masukkan nama file (test/input/): ");
+            String filePath = "test/input" + scanner.nextLine();
             
 
             if (args.length > 0) {
