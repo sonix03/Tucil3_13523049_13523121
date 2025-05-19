@@ -1,36 +1,4 @@
 A* Search dengan heuristik Manhattan Distance
 ------------------------------------
-Langkah 1: J-atas (g=1, h=2, f=3)
-  A A B . .
-  . . B C D
-K G P P C D
-  G H J I I
-  G H J . .
-  L L . M M
-
-Langkah 2: L-kanan (g=2, h=2, f=4)
-  A A B . .
-  . . B C D
-K G P P C D
-  G H J I I
-  G H J . .
-  . L L M M
-
-Langkah 3: G-bawah (g=3, h=2, f=5)
-  A A B . .
-  . . B C D
-K . P P C D
-  G H J I I
-  G H J . .
-  G L L M M
-
-Langkah 4: P-kiri (g=4, h=1, f=5)
-  A A B . .
-  . . B C D
-K P P . C D
-  G H J I I
-  G H J . .
-  G L L M M
-
-Solusi ditemukan dalam 4 langkah (ringkas).
-Node yang dieksplorasi: 31
+Solusi ditemukan dalam 0 langkah (ringkas).
+Node yang dieksplorasi: 1
