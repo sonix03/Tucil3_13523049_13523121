@@ -1,620 +1,76 @@
-Greedy Best First Search (GBFS) dengan heuristik Manhattan Distance
+Greedy Best First Search (GBFS) dengan heuristik Obstacle-aware Distance
 ------------------------------------
-Langkah 1: C-atas (h=4)
-A A B C . F
+Langkah 1: M-kanan (h=4)
+A A B . . F
 . . B C D F
-G P P . D F
-G H . I I I
-G H J . . .
-L L J M M .
-
-Langkah 2: P-kanan (h=3)
-A A B C . F
-. . B C D F
-G . P P D F
-G H . I I I
-G H J . . .
-L L J M M .
-
-Langkah 3: D-atas (h=3)
-A A B C D F
-. . B C D F
-G . P P . F
-G H . I I I
-G H J . . .
-L L J M M .
-
-Langkah 4: P-kanan (h=2)
-A A B C D F
-. . B C D F
-G . . P P F
-G H . I I I
-G H J . . .
-L L J M M .
-
-Langkah 5: M-kanan (h=2)
-A A B C D F
-. . B C D F
-G . . P P F
+G P P C D F
 G H . I I I
 G H J . . .
 L L J . M M
 
-Langkah 6: H-atas (h=2)
-A A B C D F
+Langkah 2: J-atas (h=4)
+A A B . . F
 . . B C D F
-G H . P P F
-G H . I I I
-G . J . . .
-L L J . M M
-
-Langkah 7: M-kiri (h=2)
-A A B C D F
-. . B C D F
-G H . P P F
-G H . I I I
-G . J . . .
-L L J M M .
-
-Langkah 8: J-atas (h=2)
-A A B C D F
-. . B C D F
-G H . P P F
+G P P C D F
 G H J I I I
-G . J . . .
-L L . M M .
-
-Langkah 9: M-kanan (h=2)
-A A B C D F
-. . B C D F
-G H . P P F
-G H J I I I
-G . J . . .
+G H J . . .
 L L . . M M
 
-Langkah 10: L-kanan (h=2)
-A A B C D F
+Langkah 3: M-kiri 2 kali (h=4)
+A A B . . F
 . . B C D F
-G H . P P F
-G H J I I I
-G . J . . .
-. L L . M M
-
-Langkah 11: M-kiri (h=2)
-A A B C D F
-. . B C D F
-G H . P P F
-G H J I I I
-G . J . . .
-. L L M M .
-
-Langkah 12: J-atas (h=2)
-A A B C D F
-. . B C D F
-G H J P P F
-G H J I I I
-G . . . . .
-. L L M M .
-
-Langkah 13: H-bawah (h=2)
-A A B C D F
-. . B C D F
-G . J P P F
-G H J I I I
-G H . . . .
-. L L M M .
-
-Langkah 14: M-kanan (h=2)
-A A B C D F
-. . B C D F
-G . J P P F
-G H J I I I
-G H . . . .
-. L L . M M
-
-Langkah 15: L-kanan (h=2)
-A A B C D F
-. . B C D F
-G . J P P F
-G H J I I I
-G H . . . .
-. . L L M M
-
-Langkah 16: J-bawah (h=2)
-A A B C D F
-. . B C D F
-G . . P P F
+G P P C D F
 G H J I I I
 G H J . . .
-. . L L M M
+L L M M . .
 
-Langkah 17: H-bawah (h=2)
-A A B C D F
-. . B C D F
-G . . P P F
-G . J I I I
-G H J . . .
-. H L L M M
-
-Langkah 18: G-atas (h=2)
-A A B C D F
+Langkah 4: G-atas (h=4)
+A A B . . F
 G . B C D F
-G . . P P F
-G . J I I I
+G P P C D F
+G H J I I I
 . H J . . .
-. H L L M M
+L L M M . .
 
-Langkah 19: J-atas (h=2)
-A A B C D F
+Langkah 5: M-kanan 2 kali (h=4)
+A A B . . F
 G . B C D F
-G . J P P F
-G . J I I I
-. H . . . .
-. H L L M M
-
-Langkah 20: G-bawah 2 kali (h=2)
-A A B C D F
-. . B C D F
-. . J P P F
-G . J I I I
-G H . . . .
-G H L L M M
-
-Langkah 21: J-bawah (h=2)
-A A B C D F
-. . B C D F
-. . . P P F
-G . J I I I
-G H J . . .
-G H L L M M
-
-Langkah 22: B-bawah (h=2)
-A A . C D F
-. . B C D F
-. . B P P F
-G . J I I I
-G H J . . .
-G H L L M M
-
-Langkah 23: H-atas (h=2)
-A A . C D F
-. . B C D F
-. . B P P F
+G P P C D F
 G H J I I I
-G H J . . .
-G . L L M M
+. H J . . .
+L L . . M M
 
-Langkah 24: L-kiri (h=2)
-A A . C D F
-. . B C D F
-. . B P P F
+Langkah 6: L-kanan (h=4)
+A A B . . F
+G . B C D F
+G P P C D F
 G H J I I I
-G H J . . .
-G L L . M M
+. H J . . .
+. L L . M M
 
-Langkah 25: M-kiri (h=2)
-A A . C D F
+Langkah 7: M-kiri (h=4)
+A A B . . F
+G . B C D F
+G P P C D F
+G H J I I I
+. H J . . .
+. L L M M .
+
+Langkah 8: G-bawah 2 kali (h=2)
+A A B . . F
 . . B C D F
-. . B P P F
+. P P C D F
 G H J I I I
 G H J . . .
 G L L M M .
 
-Langkah 26: G-atas (h=2)
-A A . C D F
+Langkah 9: P-kiri (h=1)
+A A B . . F
 . . B C D F
-G . B P P F
+P P . C D F
 G H J I I I
 G H J . . .
-. L L M M .
+G L L M M .
 
-Langkah 27: M-kanan (h=2)
-A A . C D F
-. . B C D F
-G . B P P F
-G H J I I I
-G H J . . .
-. L L . M M
-
-Langkah 28: L-kanan (h=2)
-A A . C D F
-. . B C D F
-G . B P P F
-G H J I I I
-G H J . . .
-. . L L M M
-
-Langkah 29: H-atas (h=2)
-A A . C D F
-. . B C D F
-G H B P P F
-G H J I I I
-G . J . . .
-. . L L M M
-
-Langkah 30: L-kiri (h=2)
-A A . C D F
-. . B C D F
-G H B P P F
-G H J I I I
-G . J . . .
-. L L . M M
-
-Langkah 31: M-kiri (h=2)
-A A . C D F
-. . B C D F
-G H B P P F
-G H J I I I
-G . J . . .
-. L L M M .
-
-Langkah 32: L-kiri (h=2)
-A A . C D F
-. . B C D F
-G H B P P F
-G H J I I I
-G . J . . .
-L L . M M .
-
-Langkah 33: M-kanan (h=2)
-A A . C D F
-. . B C D F
-G H B P P F
-G H J I I I
-G . J . . .
-L L . . M M
-
-Langkah 34: J-bawah (h=2)
-A A . C D F
-. . B C D F
-G H B P P F
-G H . I I I
-G . J . . .
-L L J . M M
-
-Langkah 35: M-kiri (h=2)
-A A . C D F
-. . B C D F
-G H B P P F
-G H . I I I
-G . J . . .
-L L J M M .
-
-Langkah 36: I-kiri (h=2)
-A A . C D F
-. . B C D F
-G H B P P F
-G H I I I .
-G . J . . .
-L L J M M .
-
-Langkah 37: M-kanan (h=2)
-A A . C D F
-. . B C D F
-G H B P P F
-G H I I I .
-G . J . . .
-L L J . M M
-
-Langkah 38: H-bawah (h=2)
-A A . C D F
-. . B C D F
-G . B P P F
-G H I I I .
-G H J . . .
-L L J . M M
-
-Langkah 39: M-kiri (h=2)
-A A . C D F
-. . B C D F
-G . B P P F
-G H I I I .
-G H J . . .
-L L J M M .
-
-Langkah 40: G-atas (h=2)
-A A . C D F
-G . B C D F
-G . B P P F
-G H I I I .
-. H J . . .
-L L J M M .
-
-Langkah 41: M-kanan (h=2)
-A A . C D F
-G . B C D F
-G . B P P F
-G H I I I .
-. H J . . .
-L L J . M M
-
-Langkah 42: I-kanan (h=2)
-A A . C D F
-G . B C D F
-G . B P P F
-G H . I I I
-. H J . . .
-L L J . M M
-
-Langkah 43: M-kiri (h=2)
-A A . C D F
-G . B C D F
-G . B P P F
-G H . I I I
-. H J . . .
-L L J M M .
-
-Langkah 44: J-atas (h=2)
-A A . C D F
-G . B C D F
-G . B P P F
-G H J I I I
-. H J . . .
-L L . M M .
-
-Langkah 45: M-kanan (h=2)
-A A . C D F
-G . B C D F
-G . B P P F
-G H J I I I
-. H J . . .
-L L . . M M
-
-Langkah 46: H-atas (h=2)
-A A . C D F
-G . B C D F
-G H B P P F
-G H J I I I
-. . J . . .
-L L . . M M
-
-Langkah 47: M-kiri 2 kali (h=2)
-A A . C D F
-G . B C D F
-G H B P P F
-G H J I I I
-. . J . . .
-L L M M . .
-
-Langkah 48: H-bawah (h=2)
-A A . C D F
-G . B C D F
-G . B P P F
-G H J I I I
-. H J . . .
-L L M M . .
-
-Langkah 49: G-bawah (h=2)
-A A . C D F
-. . B C D F
-G . B P P F
-G H J I I I
-G H J . . .
-L L M M . .
-
-Langkah 50: H-atas 2 kali (h=2)
-A A . C D F
-. H B C D F
-G H B P P F
-G . J I I I
-G . J . . .
-L L M M . .
-
-Langkah 51: A-kanan (h=2)
-. A A C D F
-. H B C D F
-G H B P P F
-G . J I I I
-G . J . . .
-L L M M . .
-
-Langkah 52: H-bawah (h=2)
-. A A C D F
-. . B C D F
-G H B P P F
-G H J I I I
-G . J . . .
-L L M M . .
-
-Langkah 53: M-kanan 2 kali (h=2)
-. A A C D F
-. . B C D F
-G H B P P F
-G H J I I I
-G . J . . .
-L L . . M M
-
-Langkah 54: L-kanan (h=2)
-. A A C D F
-. . B C D F
-G H B P P F
-G H J I I I
-G . J . . .
-. L L . M M
-
-Langkah 55: H-bawah (h=2)
-. A A C D F
-. . B C D F
-G . B P P F
-G H J I I I
-G H J . . .
-. L L . M M
-
-Langkah 56: L-kiri (h=2)
-. A A C D F
-. . B C D F
-G . B P P F
-G H J I I I
-G H J . . .
-L L . . M M
-
-Langkah 57: G-atas (h=2)
-. A A C D F
-G . B C D F
-G . B P P F
-G H J I I I
-. H J . . .
-L L . . M M
-
-Langkah 58: M-kiri 2 kali (h=2)
-. A A C D F
-G . B C D F
-G . B P P F
-G H J I I I
-. H J . . .
-L L M M . .
-
-Langkah 59: H-atas 2 kali (h=2)
-. A A C D F
-G H B C D F
-G H B P P F
-G . J I I I
-. . J . . .
-L L M M . .
-
-Langkah 60: M-kanan 2 kali (h=2)
-. A A C D F
-G H B C D F
-G H B P P F
-G . J I I I
-. . J . . .
-L L . . M M
-
-Langkah 61: J-bawah (h=2)
-. A A C D F
-G H B C D F
-G H B P P F
-G . . I I I
-. . J . . .
-L L J . M M
-
-Langkah 62: M-kiri (h=2)
-. A A C D F
-G H B C D F
-G H B P P F
-G . . I I I
-. . J . . .
-L L J M M .
-
-Langkah 63: I-kiri (h=2)
-. A A C D F
-G H B C D F
-G H B P P F
-G . I I I .
-. . J . . .
-L L J M M .
-
-Langkah 64: M-kanan (h=2)
-. A A C D F
-G H B C D F
-G H B P P F
-G . I I I .
-. . J . . .
-L L J . M M
-
-Langkah 65: I-kiri (h=2)
-. A A C D F
-G H B C D F
-G H B P P F
-G I I I . .
-. . J . . .
-L L J . M M
-
-Langkah 66: M-kiri (h=2)
-. A A C D F
-G H B C D F
-G H B P P F
-G I I I . .
-. . J . . .
-L L J M M .
-
-Langkah 67: G-bawah (h=2)
-. A A C D F
-. H B C D F
-G H B P P F
-G I I I . .
-G . J . . .
-L L J M M .
-
-Langkah 68: M-kanan (h=2)
-. A A C D F
-. H B C D F
-G H B P P F
-G I I I . .
-G . J . . .
-L L J . M M
-
-Langkah 69: F-bawah 2 kali (h=2)
-. A A C D .
-. H B C D .
-G H B P P F
-G I I I . F
-G . J . . F
-L L J . M M
-
-Langkah 70: M-kiri (h=2)
-. A A C D .
-. H B C D .
-G H B P P F
-G I I I . F
-G . J . . F
-L L J M M .
-
-Langkah 71: I-kanan (h=2)
-. A A C D .
-. H B C D .
-G H B P P F
-G . I I I F
-G . J . . F
-L L J M M .
-
-Langkah 72: M-kanan (h=2)
-. A A C D .
-. H B C D .
-G H B P P F
-G . I I I F
-G . J . . F
-L L J . M M
-
-Langkah 73: H-bawah 2 kali (h=2)
-. A A C D .
-. . B C D .
-G . B P P F
-G H I I I F
-G H J . . F
-L L J . M M
-
-Langkah 74: M-kiri (h=2)
-. A A C D .
-. . B C D .
-G . B P P F
-G H I I I F
-G H J . . F
-L L J M M .
-
-Langkah 75: H-atas (h=2)
-. A A C D .
-. . B C D .
-G H B P P F
-G H I I I F
-G . J . . F
-L L J M M .
-
-Langkah 76: F-bawah (h=2)
-. A A C D .
-. . B C D .
-G H B P P .
-G H I I I F
-G . J . . F
-L L J M M F
-
-Langkah 77: P-kanan (h=1)
-. A A C D .
-. . B C D .
-G H B . P P
-G H I I I F
-G . J . . F
-L L J M M F
-
-Solusi ditemukan dalam 77 langkah (ringkas).
-Node yang dieksplorasi: 303
+Solusi ditemukan dalam 9 langkah (ringkas).
+Node yang dieksplorasi: 23

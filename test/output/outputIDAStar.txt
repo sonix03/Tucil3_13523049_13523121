@@ -1,20 +1,36 @@
-IDA* Search dengan heuristik Manhattan Distance
+IDA* Search dengan heuristik Obstacle-aware Distance
 ------------------------------------
-Langkah 1: J-kanan (g=1, h=3, f=4)
+Langkah 1: J-atas (g=1, h=4, f=5)
 A A B . . F
 . . B C D F
-G . P C D F
-G H P I I I
-G H . J J .
+G P P C D F
+G H J I I I
+G H J . . .
 L L . M M .
 
-Langkah 2: P-bawah 2 kali (g=3, h=1, f=4)
+Langkah 2: L-kanan (g=2, h=4, f=6)
 A A B . . F
 . . B C D F
-G . . C D F
-G H . I I I
-G H P J J .
-L L P M M .
+G P P C D F
+G H J I I I
+G H J . . .
+. L L M M .
 
-Solusi ditemukan dalam 2 langkah (ringkas).
-Total Node yang dieksplorasi: 52
+Langkah 3: G-bawah (g=3, h=2, f=5)
+A A B . . F
+. . B C D F
+. P P C D F
+G H J I I I
+G H J . . .
+G L L M M .
+
+Langkah 4: P-kiri (g=4, h=1, f=5)
+A A B . . F
+. . B C D F
+P P . C D F
+G H J I I I
+G H J . . .
+G L L M M .
+
+Solusi ditemukan dalam 4 langkah (ringkas).
+Total Node yang dieksplorasi: 246

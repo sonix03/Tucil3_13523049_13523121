@@ -1,60 +1,36 @@
-A* Search dengan heuristik Manhattan Distance
+A* Search dengan heuristik Obstacle-aware Distance
 ------------------------------------
-Langkah 1: C-atas (g=1, h=4, f=5)
-A A B C . F
+Langkah 1: J-atas (g=1, h=4, f=5)
+A A B . . F
 . . B C D F
-G P P . D F
-G H . I I I
+G P P C D F
+G H J I I I
 G H J . . .
-L L J M M .
+L L . M M .
 
-Langkah 2: P-kanan (g=2, h=3, f=5)
-A A B C . F
+Langkah 2: L-kanan (g=2, h=4, f=6)
+A A B . . F
 . . B C D F
-G . P P D F
-G H . I I I
+G P P C D F
+G H J I I I
 G H J . . .
-L L J M M .
+. L L M M .
 
-Langkah 3: D-atas (g=3, h=3, f=6)
-A A B C D F
+Langkah 3: G-bawah (g=3, h=2, f=5)
+A A B . . F
 . . B C D F
-G . P P . F
-G H . I I I
+. P P C D F
+G H J I I I
 G H J . . .
-L L J M M .
+G L L M M .
 
-Langkah 4: P-kanan (g=4, h=2, f=6)
-A A B C D F
+Langkah 4: P-kiri (g=4, h=1, f=5)
+A A B . . F
 . . B C D F
-G . . P P F
-G H . I I I
+P P . C D F
+G H J I I I
 G H J . . .
-L L J M M .
+G L L M M .
 
-Langkah 5: I-kiri (g=5, h=2, f=7)
-A A B C D F
-. . B C D F
-G . . P P F
-G H I I I .
-G H J . . .
-L L J M M .
-
-Langkah 6: F-bawah 3 kali (g=8, h=2, f=10)
-A A B C D .
-. . B C D .
-G . . P P .
-G H I I I F
-G H J . . F
-L L J M M F
-
-Langkah 7: P-kanan (g=9, h=1, f=10)
-A A B C D .
-. . B C D .
-G . . . P P
-G H I I I F
-G H J . . F
-L L J M M F
-
-Solusi ditemukan dalam 7 langkah (ringkas).
-Node yang dieksplorasi: 308
+Solusi ditemukan dalam 4 langkah (ringkas).
+Node yang dieksplorasi: 11

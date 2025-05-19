@@ -52,11 +52,11 @@ public class Board {
         List<int[]> kLocationsInFile = new ArrayList<>(); 
 
         
-        if (lines.size() > 2 && lines.get(2).length() >= this.cols && lines.get(2).contains("K") && lines.indexOf(lines.get(2)) == 2) { // Cek apakah ini baris untuk K di atas
-            for(int j=0; j < lines.get(2).length(); j++){
-                if(lines.get(2).charAt(j) == 'K') kLocationsInFile.add(new int[]{2,j});
-            }
-        }
+        // if (lines.size() > 2 && lines.get(2).length() >= this.cols && lines.get(2).contains("K") && lines.indexOf(lines.get(2)) == 2) { // Cek apakah ini baris untuk K di atas
+        //     for(int j=0; j < lines.get(2).length(); j++){
+        //         if(lines.get(2).charAt(j) == 'K') kLocationsInFile.add(new int[]{2,j});
+        //     }
+        // }
        
         int gridDataStartLineIndex = 2; 
         
