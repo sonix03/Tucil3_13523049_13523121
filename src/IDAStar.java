@@ -1,5 +1,3 @@
-// Sesuaikan dengan struktur package Anda jika ada
-
 import java.util.*;
 
 public class IDAStar implements Solver {
@@ -58,13 +56,13 @@ public class IDAStar implements Solver {
                 System.out.println("Tidak ada batas berikutnya, solusi tidak ditemukan.");
                 break;
             }
-            if (result.nextBound <= bound) { // Mencegah stuck jika nextBound tidak meningkat
+            if (result.nextBound <= bound) { 
                  System.out.println("Peringatan: Batas f-cost tidak meningkat (lama: " + bound + ", baru: " + result.nextBound + "). Menaikkan batas minimal.");
-                 bound++; // Atau bound = result.nextBound + 1 jika result.nextBound adalah nilai valid
+                 bound++; 
             } else {
                 bound = result.nextBound;
             }
-            if (bound > 1000 && solutionPathNode==null) { // Batas pengaman sederhana, sesuaikan
+            if (bound > 1000 && solutionPathNode==null) { 
                 System.out.println("IDA* melebihi batas iterasi/f-cost maksimum, menghentikan.");
                 break;
             }
@@ -141,12 +139,12 @@ public class IDAStar implements Solver {
         return lastSummarizedStepCount;
     }
 
-    // Menggunakan Set<String> untuk pathStates agar lebih efisien daripada List<String> untuk contains()
+    
     private SearchResult search(Path currentPath, int bound, Set<String> pathStates) {
         nodesExpandedThisIteration++;
         Board currentBoard = currentPath.board;
         int gCost = currentPath.g;
-        int hCost = currentPath.h; // Heuristik sudah dihitung saat Path dibuat
+        int hCost = currentPath.h; 
         int fCost = gCost + hCost;
 
         if (fCost > bound) {
@@ -159,7 +157,7 @@ public class IDAStar implements Solver {
 
         String boardKey = getBoardKey(currentBoard);
         if (pathStates.contains(boardKey)) {
-            return new SearchResult(false, null, Integer.MAX_VALUE); // Siklus, anggap f-cost sangat tinggi
+            return new SearchResult(false, null, Integer.MAX_VALUE); 
         }
         pathStates.add(boardKey);
 
@@ -176,7 +174,7 @@ public class IDAStar implements Solver {
                     SearchResult recursiveResult = search(newPath, bound, pathStates);
 
                     if (recursiveResult.isGoal) {
-                        pathStates.remove(boardKey); // Penting untuk backtrack
+                        pathStates.remove(boardKey); 
                         return recursiveResult;
                     }
                     minNextBound = Math.min(minNextBound, recursiveResult.nextBound);
@@ -184,7 +182,7 @@ public class IDAStar implements Solver {
             }
         }
 
-        pathStates.remove(boardKey); // Hapus state saat backtrack
+        pathStates.remove(boardKey); 
         return new SearchResult(false, null, minNextBound);
     }
 

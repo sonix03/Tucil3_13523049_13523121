@@ -29,35 +29,35 @@ public class Board {
         String line;
 
         while ((line = br.readLine()) != null) {
-            // Jika masih dalam grid, isi grid dan deteksi bidak
+            
             if (currentRow < rows) {
                 for (int j = 0; j < line.length(); j++) {
                     char c = line.charAt(j);
 
-                    // Isi grid jika dalam batas
+                    
                     if (j < cols) {
                         grid[currentRow][j] = c;
                     }
 
-                    // Catat posisi exit meskipun di luar grid
+                    
                     if (c == 'K') {
                         exitRow = currentRow;
                         exitCol = j;
                     }
 
-                    // Catat bidak jika dalam grid
+                    
                     if (c != '.' && c != 'K' && j < cols) {
                         tempPieceCells.putIfAbsent(c, new ArrayList<>());
                         tempPieceCells.get(c).add(new int[]{currentRow, j});
                     }
                 }
 
-                // Jika baris lebih pendek dari grid, isi titik
+                
                 for (int j = line.length(); j < cols; j++) {
                     grid[currentRow][j] = '.';
                 }
             } else {
-                // Di luar area grid, tetap cari K
+                
                 for (int j = 0; j < line.length(); j++) {
                     if (line.charAt(j) == 'K') {
                         exitRow = currentRow;
@@ -69,7 +69,7 @@ public class Board {
             currentRow++;
         }
 
-        // Proses bidak
+        
         for (Map.Entry<Character, List<int[]>> entry : tempPieceCells.entrySet()) {
             char pieceName = entry.getKey();
             List<int[]> cellLocations = entry.getValue();
@@ -106,7 +106,7 @@ public class Board {
             }
         }
 
-        // Cek ulang primary piece
+        
         if (this.primaryPiece == null && tempPieceCells.containsKey('P')) {
             for (Piece p : pieces) {
                 if (p.name == 'P') {
