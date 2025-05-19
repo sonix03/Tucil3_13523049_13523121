@@ -4,40 +4,58 @@ import javax.swing.*;
 public class AnimationManager {
     private final List<Board> steps;
     private final BoardGUI panel;
-    private int index = 0;
-    private final Timer timer;
+    private final JSlider speedSlider;
+    private SwingWorker<Void, Board> worker;
     private boolean stopped = false;
-    private Runnable onFinish = null;
+    private Runnable onFinish;
 
-    public AnimationManager(List<Board> steps, BoardGUI panel) {
-        this.steps = steps;
-        this.panel = panel;
-        this.timer = new Timer(500, e -> nextStep());
+    public AnimationManager(List<Board> steps, BoardGUI panel, JSlider speedSlider) {
+        this(steps, panel, speedSlider, null);
     }
 
-    public AnimationManager(List<Board> steps, BoardGUI panel, Runnable onFinish) {
-        this(steps, panel);
+    public AnimationManager(List<Board> steps, BoardGUI panel, JSlider speedSlider, Runnable onFinish) {
+        this.steps = steps;
+        this.panel = panel;
+        this.speedSlider = speedSlider;
         this.onFinish = onFinish;
     }
 
     public void start() {
-        index = 0;
         stopped = false;
-        timer.start();
+        worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                for (int i = 0; i < steps.size(); i++) {
+                    if (stopped) break;
+
+                    // Kirim board ke publish
+                    publish(steps.get(i));
+
+                    // Dapatkan delay dari slider
+                    int delay = speedSlider.getValue();
+                    Thread.sleep(delay);
+                }
+                return null;
+            }
+
+            @Override
+            protected void process(List<Board> chunks) {
+                Board latest = chunks.get(chunks.size() - 1);
+                panel.setBoard(latest);
+            }
+
+            @Override
+            protected void done() {
+                if (onFinish != null) onFinish.run();
+            }
+        };
+        worker.execute();
     }
 
     public void stop() {
         stopped = true;
-        timer.stop();
-    }
-
-    private void nextStep() {
-        if (stopped || index >= steps.size()) {
-            timer.stop();
-            if (onFinish != null) onFinish.run(); 
-            return;
+        if (worker != null && !worker.isDone()) {
+            worker.cancel(true);
         }
-
-        panel.setBoard(steps.get(index++));
     }
 }

@@ -12,6 +12,7 @@ public class GUIFrame extends JFrame {
     private Board currentBoard;
     private boolean isRunning = false;
     private AnimationManager animationManager;
+    private JSlider speedSlider;
 
     public GUIFrame() {
         super("Rush Hour Solver");
@@ -112,11 +113,10 @@ public class GUIFrame extends JFrame {
             }
         
             statusLabel.setText("Selesai dalam " + (end - start) + " ms | langkah: " + solver.getLastSummarizedStepCount() + "| Node yang dieksplorasi: " + solver.getNodesExplored());
-            animationManager = new AnimationManager(path, boardPanel, () -> {
-                // Callback setelah animasi selesai
+            animationManager = new AnimationManager(path, boardPanel, speedSlider, () -> {
                 runButton.setText("Jalankan");
                 isRunning = false;
-            });
+            });            
             animationManager.start();
         });
         
@@ -136,11 +136,30 @@ public class GUIFrame extends JFrame {
         add(boardPanel, BorderLayout.CENTER);
     }
 
+
     private void initBottomPanel() {
         JPanel bottom = new JPanel(new BorderLayout());
+    
+        // --- Panel untuk kecepatan animasi ---
+        JPanel speedPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        speedSlider = new JSlider(100, 1000, 500);  
+        speedSlider.setInverted(true); // kanan cepat
+        speedSlider.setMajorTickSpacing(300);
+        speedSlider.setMinorTickSpacing(100);
+        
+    
+        JLabel speedLabel = new JLabel("Kecepatan Animasi:");
+        speedPanel.add(speedLabel);
+        speedPanel.add(speedSlider);
+    
+        // --- Status label ---
         statusLabel = new JLabel("Pilih file untuk mulai.");
         statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        bottom.add(statusLabel, BorderLayout.CENTER);
+    
+        // Tambahkan ke bottom panel
+        bottom.add(speedPanel, BorderLayout.NORTH);     
+        bottom.add(statusLabel, BorderLayout.CENTER);  
+    
         add(bottom, BorderLayout.SOUTH);
     }
 }
