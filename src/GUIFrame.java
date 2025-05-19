@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.List;
 import javax.swing.*;
 
@@ -109,6 +111,7 @@ public class GUIFrame extends JFrame {
                 statusLabel.setText("Solusi tidak ditemukan.");
                 runButton.setText("Jalankan");
                 isRunning = false;
+                showSavePrompt();
                 return;
             }
         
@@ -116,6 +119,7 @@ public class GUIFrame extends JFrame {
             animationManager = new AnimationManager(path, boardPanel, speedSlider, () -> {
                 runButton.setText("Jalankan");
                 isRunning = false;
+                showSavePrompt();
             });            
             animationManager.start();
         });
@@ -162,4 +166,48 @@ public class GUIFrame extends JFrame {
     
         add(bottom, BorderLayout.SOUTH);
     }
+
+    private void showSavePrompt() {
+        int result = JOptionPane.showConfirmDialog(
+            this,
+            "Apakah Anda ingin menyimpan solusi ke file?",
+            "Simpan Solusi",
+            JOptionPane.YES_NO_OPTION
+        );
+    
+        if (result == JOptionPane.YES_OPTION && selectedFile != null) {
+            try {
+                String name = selectedFile.getName();
+                String outputFileName = name.substring(0, name.lastIndexOf('.'));
+                String outputPath = "test/output/" + outputFileName + ".txt";
+    
+                File outDir = new File("test/output");
+                if (!outDir.exists()) outDir.mkdirs();
+    
+                PrintWriter writer = new PrintWriter(new FileWriter(outputPath));
+                if (animationManager == null){
+                    writer.println("Solusi disimpan dari file input: " + name);
+                    writer.println("Tidak ditemukan solusi!");
+                    writer.close();
+                } else {
+                    writer.println("Solusi disimpan dari file input: " + name);
+                    writer.println("Langkah solusi (tidak ringkas, hanya board):");
+                    for (Board b : animationManager.getSteps()) {
+                        for (int i = 0; i < b.rows; i++) {
+                            for (int j = 0; j < b.cols; j++) {
+                                writer.print(b.grid[i][j]);
+                            }
+                            writer.println();
+                        }
+                        writer.println();
+                    }
+                    writer.close();
+                }
+
+                JOptionPane.showMessageDialog(this, "Solusi disimpan ke " + outputPath);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Gagal menyimpan solusi: " + e.getMessage());
+            }
+        }
+    }    
 }

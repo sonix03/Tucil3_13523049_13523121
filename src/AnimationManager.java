@@ -58,4 +58,8 @@ public class AnimationManager {
             worker.cancel(true);
         }
     }
+
+    public List<Board> getSteps() {
+        return steps;
+    }
 }
