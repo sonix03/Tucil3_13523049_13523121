@@ -1,20 +1,9 @@
-/**
- * Class untuk menghitung berbagai fungsi heuristik
- * yang digunakan dalam algoritma pencarian
- */
 public class Heuristic {
     // Tipe heuristik
     public static final int MANHATTAN = 0;
     public static final int EUCLIDEAN = 1;
     public static final int OBSTACLE_AWARE = 2;
     
-    /**
-     * Menghitung nilai heuristik sesuai dengan tipe yang dipilih
-     * 
-     * @param board Board saat ini
-     * @param type Tipe heuristik: 0=Manhattan, 1=Euclidean, 2=Obstacle-aware
-     * @return Nilai heuristik
-     */
     public static int calculate(Board board, int type) {
         switch (type) {
             case MANHATTAN:
@@ -28,10 +17,7 @@ public class Heuristic {
         }
     }
     
-    /**
-     * @param type Tipe heuristik
-     * @return Nama heuristik
-     */
+
     public static String getName(int type) {
         return switch (type) {
             case MANHATTAN -> "Manhattan Distance";
@@ -41,9 +27,7 @@ public class Heuristic {
         };
     }
     
-    /**
-     * Menghitung jarak Manhattan dari primary piece ke exit
-     */
+
     private static int calculateManhattan(Board board) {
         int minDistance = Integer.MAX_VALUE;
         
@@ -55,9 +39,7 @@ public class Heuristic {
         return minDistance;
     }
     
-    /**
-     * Menghitung jarak Euclidean dari primary piece ke exit
-     */
+
     private static int calculateEuclidean(Board board) {
         double minDistance = Double.MAX_VALUE;
         
@@ -68,13 +50,11 @@ public class Heuristic {
             minDistance = Math.min(minDistance, distance);
         }
         
-        // Konversi ke int dengan pembulatan ke atas
+        
         return (int) Math.ceil(minDistance);
     }
     
-    /**
-     * Menghitung jarak dengan mempertimbangkan rintangan
-     */
+
     private static int calculateObstacleAware(Board board) {
         int baseDistance = calculateManhattan(board);
         int obstacles = 0;
