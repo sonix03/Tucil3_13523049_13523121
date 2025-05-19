@@ -1,5 +1,3 @@
-// Sesuaikan dengan struktur package Anda jika ada
-
 import java.util.*;
 
 public class AStar implements Solver {
@@ -8,12 +6,11 @@ public class AStar implements Solver {
     private int nodesExpanded;
     private int lastSummarizedStepCount = 0;
 
-    // Helper class for summarized steps
     private static class SummarizedStep {
         char piece;
         char direction;
-        int moveCount; // Jumlah gerakan berurutan
-        Board boardState; // State board SETELAH gerakan ini
+        int moveCount;
+        Board boardState; 
         int g;
         int h;
         // f = g + h
@@ -42,8 +39,8 @@ public class AStar implements Solver {
         nodesExpanded = 0;
 
         PriorityQueue<Node> openSet = new PriorityQueue<>();
-        Set<String> closedSet = new HashSet<>(); // Lebih tepat menggunakan closedSet untuk A*
-        Map<String, Integer> bestCost = new HashMap<>(); // Untuk melacak g-cost terbaik ke sebuah state
+        Set<String> closedSet = new HashSet<>();
+        Map<String, Integer> bestCost = new HashMap<>();
 
         int h = Heuristic.calculate(start, heuristicType);
         Node startNode = new Node(start, null, '\0', '\0', 0, h);
@@ -66,21 +63,17 @@ public class AStar implements Solver {
 
             String boardKey = getBoardKey(current.board);
 
-            // Jika sudah ada di closedSet dan g-cost saat ini tidak lebih baik, skip.
-            // Atau jika g-cost saat ini lebih besar dari g-cost terbaik yang pernah tercatat untuk state ini.
             if (closedSet.contains(boardKey) && current.g >= bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) {
                 continue;
             }
-            // Jika A* dengan reopening: if current.g >= bestCost.getOrDefault(boardKey, Integer.MAX_VALUE) continue;
-            // Jika A* standar dengan heuristik konsisten, closedSet cukup: if (closedSet.contains(boardKey)) continue;
-            // Menggunakan kombinasi untuk robust:
-            if (current.g > bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) { // Pastikan kita tidak memproses path yang lebih buruk
+
+            if (current.g > bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) { 
                  continue;
             }
 
 
             closedSet.add(boardKey);
-            // bestCost.put(boardKey, current.g); // bestCost diupdate saat memasukkan/memperbarui di openSet
+           
 
             for (Piece piece : current.board.pieces) {
                 for (char dir : priorityDirs) {
@@ -366,7 +359,7 @@ public class AStar implements Solver {
                  newBoard.grid[cell[0]][cell[1]] = pieceName;
             } else {
                 System.err.println("Error critical (AStar): Piece " + pieceName + " moved out of bounds. Row: " + cell[0] + ", Col: " + cell[1]);
-                return board; // Kembalikan board lama untuk mencegah state invalid
+                return board; 
             }
         }
 
