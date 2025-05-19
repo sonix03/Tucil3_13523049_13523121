@@ -1,18 +1,14 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.InputMismatchException;
-import java.util.Scanner; // Import untuk menangani input yang bukan integer
+import java.util.Scanner; 
 
-/**
- * Main class untuk menjalankan sliding block puzzle solver
- * dengan pilihan algoritma dan heuristik
- */
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
         try {
-            // Input nama file dari user
+            // Input 
             
             System.out.print("Masukkan nama file (test/input/): ");
             String filePath = "test/input" + scanner.nextLine();
@@ -30,7 +26,7 @@ public class Main {
             System.out.println();
 
             int algoChoice;
-            // Loop untuk validasi input algoritma
+            
             while (true) {
                 System.out.println("Pilih algoritma:");
                 System.out.println("1. Greedy Best First Search (GBFS)");
@@ -41,7 +37,7 @@ public class Main {
                 try {
                     algoChoice = scanner.nextInt();
                     if (algoChoice >= 1 && algoChoice <= 4) {
-                        break; // Keluar dari loop jika input valid
+                        break; 
                     } else {
                         System.out.println("Pilihan tidak valid. Masukkan angka antara 1 dan 4.");
                     }
@@ -49,24 +45,23 @@ public class Main {
                 
                 catch (InputMismatchException e) {
                     System.out.println("Input tidak valid. Harap masukkan angka.");
-                    scanner.next(); // Bersihkan input yang salah dari scanner
+                    scanner.next(); 
                 }
-                System.out.println(); // Beri jarak untuk pembacaan yang lebih baik
+                System.out.println(); 
             }
 
             Solver solver = null;
-            int heuristicChoice = -1; // Inisialisasi dengan nilai default/tidak valid
-            String algorithmName = ""; // Variabel untuk menyimpan nama algoritma
+            int heuristicChoice = -1; 
+            String algorithmName = ""; 
 
             if (algoChoice == 2) {
-                // UCS tidak butuh heuristik
+                
                 algorithmName = "Uniform Cost Search (UCS)";
                 solver = new UCS();
             } 
             
             else {
-                // Algoritma GBFS, A*, atau IDA* membutuhkan heuristik
-                // Loop untuk validasi input heuristik
+                
                 while (true) {
                     System.out.println("\nPilih heuristik:");
                     System.out.println("1. Manhattan Distance");
@@ -105,19 +100,19 @@ public class Main {
                 }
             }
 
-            // Pastikan solver terinisialisasi
+            
             if (solver == null) {
                 System.err.println("Error: Solver tidak terinisialisasi dengan benar. Program akan berhenti.");
-                // scanner.close(); // Tutup scanner sebelum return jika terjadi error di sini
-                return; // Keluar dari program
+            
+                return; 
             }
 
-            // Menampilkan nama algoritma yang dipilih sebelum memulai pencarian
+            
             
             System.out.println("\nMencari solusi...");
-            // Hitung waktu eksekusi
+            
             long startTime = System.currentTimeMillis();
-            solver.solve(board); // Asumsikan method solve ada di interface/kelas Solver
+            solver.solve(board); 
             long endTime = System.currentTimeMillis();
             
             System.out.println("Waktu eksekusi: " + (endTime - startTime) + " ms");
