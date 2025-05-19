@@ -1,5 +1,8 @@
-// Sesuaikan dengan struktur package Anda jika ada
 import java.util.*;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.File;
 
 public class GBFS implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
@@ -36,9 +39,25 @@ public class GBFS implements Solver {
         this.heuristicType = heuristicType;
     }
 
+    private String getAlgorithmName() {
+        return "Greedy Best First Search (GBFS)";
+    }
+
+    private boolean needsHeuristic() {
+        return true;
+    }
+    
+    private void ensureTestDirectoryExists() {
+        File directory = new File("test");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+    }
+
     @Override
     public void solve(Board start) {
         nodesExpanded = 0;
+        lastSummarizedStepCount = 0;
 
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         Set<String> closedSet = new HashSet<>();
@@ -47,7 +66,7 @@ public class GBFS implements Solver {
         Node startNode = new Node(start, null, '\0', '\0', h);
         openSet.add(startNode);
 
-        System.out.println("Greedy Best First Search dengan heuristik " +
+        System.out.println(getAlgorithmName() + " dengan heuristik " +
                            Heuristic.getName(heuristicType));
 
         Node solutionNode = null;
@@ -86,16 +105,25 @@ public class GBFS implements Solver {
 
         if (solutionNode != null) {
             List<SummarizedStep> summarizedPath = getSummarizedPath(solutionNode);
+            this.lastSummarizedStepCount = summarizedPath.size();
             printSummarizedSolution(summarizedPath);
-            System.out.println("Node yang dieksplorasi: " + nodesExpanded);
         } else {
             System.out.println("Tidak ditemukan solusi!");
+            ensureTestDirectoryExists();
+            try (PrintWriter writer = new PrintWriter(new FileWriter("test/output.txt", false))) {
+                writer.println(getAlgorithmName() + " dengan heuristik " + Heuristic.getName(heuristicType));
+                writer.println("Tidak ditemukan solusi!");
+                writer.println("Node yang dieksplorasi: " + nodesExpanded);
+            } catch (IOException e) {
+                System.err.println("Gagal menulis ke file output.txt (solusi tidak ditemukan): " + e.getMessage());
+            }
         }
     }
 
     @Override
     public List<Board> solveAndReturnPath(Board start) {
         nodesExpanded = 0;
+        lastSummarizedStepCount = 0;
 
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         Set<String> closedSet = new HashSet<>();
@@ -104,7 +132,7 @@ public class GBFS implements Solver {
         Node startNode = new Node(start, null, '\0', '\0', hVal);
         openSet.add(startNode);
 
-        System.out.println("Greedy Best First Search dengan heuristik " + Heuristic.getName(heuristicType) + " (mencari path list)");
+        System.out.println(getAlgorithmName() + " dengan heuristik " + Heuristic.getName(heuristicType) + " (mencari path list)");
 
         Node solutionNode = null;
 
@@ -142,6 +170,14 @@ public class GBFS implements Solver {
 
         if (solutionNode == null) {
             System.out.println("Tidak ditemukan solusi!");
+             ensureTestDirectoryExists();
+            try (PrintWriter writer = new PrintWriter(new FileWriter("test/outputB.txt", false))) {
+                writer.println(getAlgorithmName() + " dengan heuristik " + Heuristic.getName(this.heuristicType));
+                writer.println("Tidak ditemukan solusi!");
+                writer.println("Node yang dieksplorasi: " + nodesExpanded);
+            } catch (IOException e) {
+                System.err.println("Gagal menulis ke file outputB.txt (solusi tidak ditemukan): " + e.getMessage());
+            }
             return new ArrayList<>();
         }
 
@@ -154,10 +190,9 @@ public class GBFS implements Solver {
         Collections.reverse(boardPath);
 
         List<SummarizedStep> summarizedPath = getSummarizedPath(solutionNode);
-        lastSummarizedStepCount = summarizedPath.size();
-        System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
-        System.out.println("Node yang dieksplorasi: " + nodesExpanded);
-
+        this.lastSummarizedStepCount = summarizedPath.size();
+        printSummarizedSolution(summarizedPath); // Cetak dan simpan solusi
+        
         return boardPath;
     }
 
@@ -212,16 +247,43 @@ public class GBFS implements Solver {
     }
 
     private void printSummarizedSolution(List<SummarizedStep> summarizedPath) {
-        int stepNumber = 1;
-        for (SummarizedStep step : summarizedPath) {
-            System.out.println("Langkah " + stepNumber + ": " + step.getDisplay(getDirName(step.direction)));
-            step.boardState.print();
-            System.out.println();
-            stepNumber++;
-        }
-        System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
-    }
+        ensureTestDirectoryExists();
+        try (PrintWriter writer = new PrintWriter(new FileWriter("test/outputGBFS.txt", false))) {
+            String algoHeader = getAlgorithmName() + " dengan heuristik " + Heuristic.getName(heuristicType);
+            System.out.println("\n" + algoHeader);
+            writer.println(algoHeader);
+            writer.println("------------------------------------");
 
+            int stepNumber = 1;
+            for (SummarizedStep step : summarizedPath) {
+                String stepDisplay = "Langkah " + stepNumber + ": " + step.getDisplay(getDirName(step.direction));
+                System.out.println(stepDisplay);
+                writer.println(stepDisplay);
+
+                step.boardState.print(); // Prints to console
+                for (int r = 0; r < step.boardState.rows; r++) {
+                    for (int c = 0; c < step.boardState.cols; c++) {
+                        writer.print(step.boardState.grid[r][c] + (c == step.boardState.cols - 1 ? "" : " "));
+                    }
+                    writer.println();
+                }
+                System.out.println();
+                writer.println();
+                stepNumber++;
+            }
+            String summary = "Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).";
+            System.out.println(summary);
+            writer.println(summary);
+
+            String nodesExploredStr = "Node yang dieksplorasi: " + nodesExpanded;
+            System.out.println(nodesExploredStr);
+            writer.println(nodesExploredStr);
+
+        } catch (IOException e) {
+            System.err.println("Gagal menulis langkah solusi ke file outputGBFS.txt: " + e.getMessage());
+        }
+    }
+    // ... sisa metode (isGoalState, getBoardKey, getDirName, canMove, move, Node class) tetap sama ...
     private boolean isGoalState(Board board) {
         if (board.primaryPiece == null || board.exitRow == -1) return false;
         for (int[] cell : board.primaryPiece.cells) {
@@ -321,7 +383,7 @@ public class GBFS implements Solver {
             }
         }
 
-        if (targetPieceInNewBoard == null) return newBoard;
+        if (targetPieceInNewBoard == null) return newBoard; // Should not happen if canMove is true
 
         for (int[] cell : targetPieceInNewBoard.cells) {
             newBoard.grid[cell[0]][cell[1]] = '.';
@@ -338,13 +400,13 @@ public class GBFS implements Solver {
 
         for (int[] cell : targetPieceInNewBoard.cells) {
              if (cell[0] >= 0 && cell[0] < newBoard.rows && cell[1] >=0 && cell[1] < newBoard.cols) {
-                 newBoard.grid[cell[0]][cell[1]] = pieceName;
+                newBoard.grid[cell[0]][cell[1]] = pieceName;
             } else {
                 System.err.println("Error critical (GBFS): Piece " + pieceName + " moved out of bounds. Row: " + cell[0] + ", Col: " + cell[1]);
-                return board;
+                return board; 
             }
         }
-
+        
         char KODE_BIDAK_UTAMA = 'P';
         if (pieceName == KODE_BIDAK_UTAMA) {
             newBoard.primaryPiece = targetPieceInNewBoard;

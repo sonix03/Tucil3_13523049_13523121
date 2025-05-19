@@ -1,4 +1,8 @@
 import java.util.*;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.File;
 
 public class UCS implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
@@ -12,7 +16,6 @@ public class UCS implements Solver {
         Board boardState;
         int g; // Cost
         
-
         public SummarizedStep(char piece, char direction, int moveCount, Board boardState, int g) {
             this.piece = piece;
             this.direction = direction;
@@ -26,20 +29,36 @@ public class UCS implements Solver {
                    " (cost=" + g + ")";
         }
     }
+    
+    private String getAlgorithmName() {
+        return "Uniform Cost Search (UCS)";
+    }
+
+    private boolean needsHeuristic() {
+        return false;
+    }
+
+    private void ensureTestDirectoryExists() {
+        File directory = new File("test");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+    }
 
     @Override
     public void solve(Board start) {
         nodesExpanded = 0;
+        lastSummarizedStepCount = 0;
 
         PriorityQueue<Node> openSet = new PriorityQueue<>();
-        Map<String, Integer> bestCost = new HashMap<>(); // Menyimpan g-cost terbaik ke setiap state
+        Map<String, Integer> bestCost = new HashMap<>(); 
 
         Node startNode = new Node(start, null, '\0', '\0', 0);
         openSet.add(startNode);
         String startKey = getBoardKey(start);
         bestCost.put(startKey, 0);
 
-        System.out.println("Uniform Cost Search (UCS)");
+        System.out.println(getAlgorithmName());
 
         Node solutionNode = null;
 
@@ -53,21 +72,16 @@ public class UCS implements Solver {
             }
 
             String boardKey = getBoardKey(current.board);
-
-            // Jika g-cost saat ini lebih besar dari yang sudah tercatat, skip.
-            // Ini penting untuk UCS agar tidak memproses path yang lebih mahal ke state yang sama.
+            
             if (current.g > bestCost.getOrDefault(boardKey, Integer.MAX_VALUE)) {
                 continue;
             }
-            // Tidak perlu closedSet terpisah jika bestCost sudah menangani ini.
-            // bestCost.put(boardKey, current.g); // Ini sudah dihandle saat menambah ke openSet
-
+            
             for (Piece piece : current.board.pieces) {
                 for (char dir : priorityDirs) {
                     if (canMove(current.board, piece.name, dir)) {
                         Board newBoard = move(current.board, piece.name, dir);
                         String newBoardKey = getBoardKey(newBoard);
-
                         int newG = current.g + 1;
 
                         if (newG < bestCost.getOrDefault(newBoardKey, Integer.MAX_VALUE)) {
@@ -82,16 +96,25 @@ public class UCS implements Solver {
 
         if (solutionNode != null) {
             List<SummarizedStep> summarizedPath = getSummarizedPath(solutionNode);
+            this.lastSummarizedStepCount = summarizedPath.size();
             printSummarizedSolution(summarizedPath);
-            System.out.println("Node yang dieksplorasi: " + nodesExpanded);
         } else {
             System.out.println("Tidak ditemukan solusi!");
+            ensureTestDirectoryExists();
+            try (PrintWriter writer = new PrintWriter(new FileWriter("test/output.txt", false))) {
+                writer.println(getAlgorithmName());
+                writer.println("Tidak ditemukan solusi!");
+                writer.println("Node yang dieksplorasi: " + nodesExpanded);
+            } catch (IOException e) {
+                System.err.println("Gagal menulis ke file output.txt (solusi tidak ditemukan): " + e.getMessage());
+            }
         }
     }
 
     @Override
     public List<Board> solveAndReturnPath(Board start) {
         nodesExpanded = 0;
+        lastSummarizedStepCount = 0;
 
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         Map<String, Integer> bestCost = new HashMap<>();
@@ -101,7 +124,7 @@ public class UCS implements Solver {
         String startKey = getBoardKey(start);
         bestCost.put(startKey, 0);
 
-        System.out.println("Uniform Cost Search (UCS) (mencari path list)");
+        System.out.println(getAlgorithmName() + " (mencari path list)");
 
         Node solutionNode = null;
 
@@ -138,6 +161,14 @@ public class UCS implements Solver {
 
         if (solutionNode == null) {
             System.out.println("Tidak ditemukan solusi!");
+            ensureTestDirectoryExists();
+            try (PrintWriter writer = new PrintWriter(new FileWriter("test/output.txt", false))) {
+                writer.println(getAlgorithmName());
+                writer.println("Tidak ditemukan solusi!");
+                writer.println("Node yang dieksplorasi: " + nodesExpanded);
+            } catch (IOException e) {
+                System.err.println("Gagal menulis ke file output.txt (solusi tidak ditemukan): " + e.getMessage());
+            }
             return new ArrayList<>();
         }
 
@@ -150,10 +181,9 @@ public class UCS implements Solver {
         Collections.reverse(boardPath);
 
         List<SummarizedStep> summarizedPath = getSummarizedPath(solutionNode);
-        lastSummarizedStepCount = summarizedPath.size();
-        System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
-        System.out.println("Node yang dieksplorasi: " + nodesExpanded);
-
+        this.lastSummarizedStepCount = summarizedPath.size();
+        printSummarizedSolution(summarizedPath); // Cetak dan simpan solusi
+        
         return boardPath;
     }
 
@@ -208,16 +238,43 @@ public class UCS implements Solver {
     }
 
     private void printSummarizedSolution(List<SummarizedStep> summarizedPath) {
-        int stepNumber = 1;
-        for (SummarizedStep step : summarizedPath) {
-            System.out.println("Langkah " + stepNumber + ": " + step.getDisplay(getDirName(step.direction)));
-            step.boardState.print();
-            System.out.println();
-            stepNumber++;
-        }
-        System.out.println("Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).");
-    }
+        ensureTestDirectoryExists();
+        try (PrintWriter writer = new PrintWriter(new FileWriter("test/outputUCS.txt", false))) {
+            String algoHeader = getAlgorithmName();
+            System.out.println("\n" + algoHeader);
+            writer.println(algoHeader);
+            writer.println("------------------------------------");
 
+            int stepNumber = 1;
+            for (SummarizedStep step : summarizedPath) {
+                String stepDisplay = "Langkah " + stepNumber + ": " + step.getDisplay(getDirName(step.direction));
+                System.out.println(stepDisplay);
+                writer.println(stepDisplay);
+
+                step.boardState.print(); 
+                for (int r = 0; r < step.boardState.rows; r++) {
+                    for (int c = 0; c < step.boardState.cols; c++) {
+                        writer.print(step.boardState.grid[r][c] + (c == step.boardState.cols - 1 ? "" : " "));
+                    }
+                    writer.println();
+                }
+                System.out.println();
+                writer.println();
+                stepNumber++;
+            }
+            String summary = "Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).";
+            System.out.println(summary);
+            writer.println(summary);
+
+            String nodesExploredStr = "Node yang dieksplorasi: " + nodesExpanded;
+            System.out.println(nodesExploredStr);
+            writer.println(nodesExploredStr);
+
+        } catch (IOException e) {
+            System.err.println("Gagal menulis langkah solusi ke file outputUCS.txt: " + e.getMessage());
+        }
+    }
+    // ... sisa metode (isGoalState, getBoardKey, getDirName, canMove, move, Node class) tetap sama ...
     private boolean isGoalState(Board board) {
         if (board.primaryPiece == null || board.exitRow == -1) return false;
         for (int[] cell : board.primaryPiece.cells) {
@@ -334,13 +391,13 @@ public class UCS implements Solver {
 
         for (int[] cell : targetPieceInNewBoard.cells) {
             if (cell[0] >= 0 && cell[0] < newBoard.rows && cell[1] >=0 && cell[1] < newBoard.cols) {
-                 newBoard.grid[cell[0]][cell[1]] = pieceName;
+                newBoard.grid[cell[0]][cell[1]] = pieceName;
             } else {
                 System.err.println("Error critical (UCS): Piece " + pieceName + " moved out of bounds. Row: " + cell[0] + ", Col: " + cell[1]);
-                return board;
+                return board; 
             }
         }
-
+        
         char KODE_BIDAK_UTAMA = 'P';
         if (pieceName == KODE_BIDAK_UTAMA) {
             newBoard.primaryPiece = targetPieceInNewBoard;
