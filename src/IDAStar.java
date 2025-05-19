@@ -174,6 +174,12 @@ public class IDAStar implements Solver {
     public int getLastSummarizedStepCount() {
         return lastSummarizedStepCount;
     }
+
+    @Override
+    public int getNodesExplored() {
+        return totalNodesExpanded;
+    }
+
     
     private SearchResult search(Path currentPath, int bound, Set<String> pathStates) {
         nodesExpandedThisIteration++;

@@ -7,7 +7,7 @@ import java.io.File;
 public class GBFS implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
     private int heuristicType;
-    private int nodesExpanded;
+    public int nodesExpanded = 0;
     public int lastSummarizedStepCount = 0;
 
     private static class SummarizedStep {
@@ -200,6 +200,11 @@ public class GBFS implements Solver {
     public int getLastSummarizedStepCount() {
         return lastSummarizedStepCount;
     }   
+
+    @Override
+    public int getNodesExplored() {
+        return nodesExpanded;
+    }
 
     private List<SummarizedStep> getSummarizedPath(Node solutionNode) {
         List<SummarizedStep> summarizedSteps = new ArrayList<>();

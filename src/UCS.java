@@ -6,8 +6,8 @@ import java.io.File;
 
 public class UCS implements Solver {
     private final char[] priorityDirs = {'U', 'D', 'L', 'R'};
-    private int nodesExpanded;
-    public int lastSummarizedStepCount;
+    public int nodesExpanded = 0;
+    public int lastSummarizedStepCount = 0;
 
     private static class SummarizedStep {
         char piece;
@@ -190,6 +190,11 @@ public class UCS implements Solver {
     @Override
     public int getLastSummarizedStepCount() {
         return lastSummarizedStepCount;
+    }
+
+    @Override
+    public int getNodesExplored() {
+        return nodesExpanded;
     }
 
     private List<SummarizedStep> getSummarizedPath(Node solutionNode) {
