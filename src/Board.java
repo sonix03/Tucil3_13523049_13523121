@@ -15,77 +15,87 @@ public class Board {
         BufferedReader br = new BufferedReader(new FileReader(file));
 
         String[] size = br.readLine().trim().split(" ");
-        rows = Integer.parseInt(size[0]);
-        cols = Integer.parseInt(size[1]);
+        int declaredRows = Integer.parseInt(size[0]);
+        int declaredCols = Integer.parseInt(size[1]);
 
-        @SuppressWarnings("unused")
         int nPiece = Integer.parseInt(br.readLine().trim());
-    
+
+        // Untuk menyimpan semua baris input
+        List<String> lines = new ArrayList<>();
+        String line;
+        while ((line = br.readLine()) != null) {
+            lines.add(line);
+        }
+
+        // Deteksi apakah baris pertama hanya K (exit atas)
+        boolean hasTopExit = lines.get(0).contains("K");
+        boolean hasLeftExit = lines.stream().anyMatch(l -> l.length() > 0 && l.charAt(0) == 'K');
+
+        // Hitung offset baris dan kolom
+        int rowOffset = hasTopExit ? 1 : 0;
+        int colOffset = hasLeftExit ? 1 : 0;
+
+        rows = declaredRows;
+        cols = declaredCols;
         grid = new char[rows][cols];
         pieces = new ArrayList<>();
         Map<Character, List<int[]>> tempPieceCells = new HashMap<>();
 
-        int currentRow = 0;
-        String line;
+        for (int i = 0; i < rows; i++) {
+            String content = lines.get(i + rowOffset);
+            for (int j = 0; j < cols; j++) {
+                int actualCol = j + colOffset;
+                char c = (actualCol < content.length()) ? content.charAt(actualCol) : '.';
+                grid[i][j] = c;
 
-        while ((line = br.readLine()) != null) {
-            
-            if (currentRow < rows) {
-                int logicalCol = 0; // indeks kolom sebenarnya (hanya untuk j < cols)
-
-                for (int j = 0; j < line.length(); j++) {
-                    char c = line.charAt(j);
-                
-                    // Catat posisi K baik di dalam atau di luar grid
-                    if (c == 'K') {
-                        exitRow = currentRow;
-                        exitCol = logicalCol;
-                    }
-                
-                    // Simpan hanya jika dalam batas grid
-                    if (logicalCol < cols) {
-                        grid[currentRow][logicalCol] = c;
-                
-                        if (c != '.' && c != 'K') {
-                            tempPieceCells.putIfAbsent(c, new ArrayList<>());
-                            tempPieceCells.get(c).add(new int[]{currentRow, logicalCol});
-                        }
-                
-                        logicalCol++;
-                    }
-                }                
-
-                
-                for (int j = line.length(); j < cols; j++) {
-                    grid[currentRow][j] = '.';
-                }
-            } else {
-                
-                for (int j = 0; j < line.length(); j++) {
-                    if (line.charAt(j) == 'K') {
-                        exitRow = currentRow;
-                        exitCol = j;
-                    }
+                if (c != '.' && c != 'K') {
+                    tempPieceCells.putIfAbsent(c, new ArrayList<>());
+                    tempPieceCells.get(c).add(new int[]{i, j});
                 }
             }
-
-            currentRow++;
         }
 
-        
+        // Cek posisi K
+        if (hasTopExit) {
+            exitRow = -1;
+            exitCol = lines.get(0).indexOf('K') - colOffset;
+        } else if (hasLeftExit) {
+            for (int i = 0; i < declaredRows; i++) {
+                if (lines.get(i + rowOffset).charAt(0) == 'K') {
+                    exitRow = i;
+                    exitCol = -1;
+                    break;
+                }
+            }
+        } else {
+            // Cek jika K ada di luar bawah atau kanan
+            for (int i = rowOffset + rows; i < lines.size(); i++) {
+                int kIndex = lines.get(i).indexOf('K');
+                if (kIndex != -1) {
+                    exitRow = i - rowOffset;
+                    exitCol = kIndex - colOffset;
+                    break;
+                }
+            }
+            for (int i = 0; i < rows; i++) {
+                String content = lines.get(i + rowOffset);
+                int kPos = cols + colOffset;
+                if (content.length() > kPos && content.charAt(kPos) == 'K') {
+                    exitRow = i;
+                    exitCol = cols; // berada tepat di kanan grid
+                    break;
+                }
+            }
+        }
+
+        // Proses piece
         for (Map.Entry<Character, List<int[]>> entry : tempPieceCells.entrySet()) {
             char pieceName = entry.getKey();
             List<int[]> cellLocations = entry.getValue();
 
-            Piece currentPieceObject;
-            if (pieceName == 'P') {
-                if (this.primaryPiece == null) {
-                    this.primaryPiece = new Piece(pieceName);
-                }
-                currentPieceObject = this.primaryPiece;
-            } else {
-                currentPieceObject = new Piece(pieceName);
-            }
+            Piece currentPieceObject = pieceName == 'P' && this.primaryPiece == null
+                ? (this.primaryPiece = new Piece(pieceName))
+                : new Piece(pieceName);
 
             currentPieceObject.cells.clear();
             for (int[] cell : cellLocations) {
@@ -94,40 +104,30 @@ public class Board {
 
             determineAndSetOrientation(currentPieceObject);
 
-            boolean pieceExists = false;
+            boolean found = false;
             for (Piece p : pieces) {
                 if (p.name == pieceName) {
-                    pieceExists = true;
+                    found = true;
                     p.cells = currentPieceObject.cells;
                     p.orientation = currentPieceObject.orientation;
-                    if (pieceName == 'P') this.primaryPiece = p;
                     break;
                 }
             }
-            if (!pieceExists) {
+            if (!found) {
                 pieces.add(currentPieceObject);
             }
         }
 
-        
-        if (this.primaryPiece == null && tempPieceCells.containsKey('P')) {
-            for (Piece p : pieces) {
-                if (p.name == 'P') {
-                    this.primaryPiece = p;
-                    break;
-                }
-            }
-        }
-
         if (this.primaryPiece == null) {
-            System.err.println("Peringatan: Bidak utama 'P' tidak ditemukan dalam file input.");
+            System.err.println("Peringatan: Bidak utama 'P' tidak ditemukan.");
         }
-        if (this.exitRow == -1 || this.exitCol == -1) {
-            System.err.println("Peringatan: Titik keluar (K) tidak ditemukan dalam file input.");
+        if (this.exitRow == -1 && this.exitCol == -1) {
+            System.err.println("Peringatan: Titik keluar (K) tidak ditemukan.");
         }
 
         br.close();
     }
+    
 
     private Board() {}
 
