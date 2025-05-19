@@ -1,3 +1,3 @@
-A* Search dengan heuristik Manhattan Distance
+Uniform Cost Search (UCS)
 Tidak ditemukan solusi!
-Node yang dieksplorasi: 23184
+Node yang dieksplorasi: 4
