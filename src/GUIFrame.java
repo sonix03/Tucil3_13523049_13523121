@@ -15,6 +15,7 @@ public class GUIFrame extends JFrame {
     private boolean isRunning = false;
     private AnimationManager animationManager;
     private JSlider speedSlider;
+    private Solver solver;
 
     public GUIFrame() {
         super("Rush Hour Solver");
@@ -98,7 +99,7 @@ public class GUIFrame extends JFrame {
             int algoIdx = algoCombo.getSelectedIndex();
             int heurIdx = heuristicCombo.getSelectedIndex(); // Indeks untuk Heuristic.java (0: Manhattan, dst)
 
-            Solver solver = switch (algoIdx) {
+            solver = switch (algoIdx) {
                 case 0 -> new GBFS(heurIdx);
                 case 1 -> new UCS(); // UCS tidak pakai heuristik, jadi heurIdx diabaikan
                 case 2 -> new AStar(heurIdx);
@@ -293,10 +294,12 @@ public class GUIFrame extends JFrame {
                                     writer.println();
                                 }
                             }
-                            writer.println("------------------------------------------"); // Pemisah antar board
+                            writer.println("------------------------------------------");
                             stepNum++;
                         }
+                        writer.println("Langkah (ringkas): " + solver.getLastSummarizedStepCount() + " | Node dieksplorasi: " + solver.getNodesExplored());
                     }
+                    
                 } // PrintWriter akan otomatis close di sini
                 JOptionPane.showMessageDialog(this, "Detail langkah solusi disimpan ke:\n" + outputPath, "Simpan Berhasil", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {

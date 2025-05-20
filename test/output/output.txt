@@ -1,3 +1,3 @@
-Uniform Cost Search (UCS)
+A* Search dengan heuristik Manhattan Distance
 Tidak ditemukan solusi!
 Node yang dieksplorasi: 4

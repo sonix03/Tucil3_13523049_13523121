@@ -1,2 +1,4 @@
 Solusi disimpan dari file input: inputfalse.txt
-Tidak ditemukan solusi!
+Algoritma: A*
+Heuristik: Manhattan
+Tidak ditemukan solusi atau tidak ada langkah untuk disimpan.

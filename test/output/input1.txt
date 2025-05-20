@@ -1,5 +1,6 @@
 Solusi disimpan dari file input: input1.txt
-Algoritma: Uniform Cost Search
+Algoritma: A*
+Heuristik: Manhattan
 ------------------------------------------
 Initial Board:
 A A B . . F
@@ -10,60 +11,60 @@ G H J . . .
 L L J M M .
 ------------------------------------------
 Board setelah Langkah 1:
-A A B . . F
+A A B C . F
 . . B C D F
-G P P C D F K
-G H I I I .
+G P P . D F K
+G H . I I I
 G H J . . .
 L L J M M .
 ------------------------------------------
 Board setelah Langkah 2:
-A A B . . .
+A A B C . F
 . . B C D F
-G P P C D F K
-G H I I I F
+G . P P D F K
+G H . I I I
 G H J . . .
 L L J M M .
 ------------------------------------------
 Board setelah Langkah 3:
-A A B . . .
-. . B C D .
-G P P C D F K
-G H I I I F
-G H J . . F
+A A B C D F
+. . B C D F
+G . P P . F K
+G H . I I I
+G H J . . .
 L L J M M .
 ------------------------------------------
 Board setelah Langkah 4:
-A A B C . .
-. . B C D .
-G P P . D F K
-G H I I I F
-G H J . . F
+A A B C D F
+. . B C D F
+G . . P P F K
+G H . I I I
+G H J . . .
 L L J M M .
 ------------------------------------------
 Board setelah Langkah 5:
-A A B C . .
-. . B C D .
-G . P P D F K
-G H I I I F
-G H J . . F
+A A B C D F
+. . B C D F
+G . . P P F K
+G H I I I .
+G H J . . .
 L L J M M .
 ------------------------------------------
 Board setelah Langkah 6:
 A A B C D .
-. . B C D .
-G . P P . F K
+. . B C D F
+G . . P P F K
 G H I I I F
-G H J . . F
+G H J . . .
 L L J M M .
 ------------------------------------------
 Board setelah Langkah 7:
 A A B C D .
 . . B C D .
-G . P P . . K
+G . . P P F K
 G H I I I F
 G H J . . F
-L L J M M F
+L L J M M .
 ------------------------------------------
 Board setelah Langkah 8:
 A A B C D .
@@ -81,3 +82,4 @@ G H I I I F
 G H J . . F
 L L J M M F
 ------------------------------------------
+Langkah (ringkas): 7 | Node dieksplorasi: 308
