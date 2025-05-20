@@ -7,4 +7,5 @@ public interface Solver {
 
     int getLastSummarizedStepCount();
     int getNodesExplored();
+    
 }
