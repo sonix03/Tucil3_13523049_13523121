@@ -1,0 +1,83 @@
+Solusi disimpan dari file input: input1.txt
+Algoritma: Uniform Cost Search
+------------------------------------------
+Initial Board:
+A A B . . F
+. . B C D F
+G P P C D F K
+G H . I I I
+G H J . . .
+L L J M M .
+------------------------------------------
+Board setelah Langkah 1:
+A A B . . F
+. . B C D F
+G P P C D F K
+G H I I I .
+G H J . . .
+L L J M M .
+------------------------------------------
+Board setelah Langkah 2:
+A A B . . .
+. . B C D F
+G P P C D F K
+G H I I I F
+G H J . . .
+L L J M M .
+------------------------------------------
+Board setelah Langkah 3:
+A A B . . .
+. . B C D .
+G P P C D F K
+G H I I I F
+G H J . . F
+L L J M M .
+------------------------------------------
+Board setelah Langkah 4:
+A A B C . .
+. . B C D .
+G P P . D F K
+G H I I I F
+G H J . . F
+L L J M M .
+------------------------------------------
+Board setelah Langkah 5:
+A A B C . .
+. . B C D .
+G . P P D F K
+G H I I I F
+G H J . . F
+L L J M M .
+------------------------------------------
+Board setelah Langkah 6:
+A A B C D .
+. . B C D .
+G . P P . F K
+G H I I I F
+G H J . . F
+L L J M M .
+------------------------------------------
+Board setelah Langkah 7:
+A A B C D .
+. . B C D .
+G . P P . . K
+G H I I I F
+G H J . . F
+L L J M M F
+------------------------------------------
+Board setelah Langkah 8:
+A A B C D .
+. . B C D .
+G . . P P . K
+G H I I I F
+G H J . . F
+L L J M M F
+------------------------------------------
+Board setelah Langkah 9:
+A A B C D .
+. . B C D .
+G . . . P P K
+G H I I I F
+G H J . . F
+L L J M M F
+------------------------------------------
