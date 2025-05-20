@@ -91,7 +91,7 @@ public class IDAStar implements Solver {
         if (solutionPathNode != null) {
             List<SummarizedStep> summarizedPath = getSummarizedPath(solutionPathNode);
             this.lastSummarizedStepCount = summarizedPath.size();
-            printSummarizedSolution(summarizedPath);
+            // printSummarizedSolution(summarizedPath);
         } else {
             System.out.println("Tidak ditemukan solusi!");
             System.out.println("Total Node yang dieksplorasi (hingga pencarian terakhir): " + totalNodesExpanded);
@@ -165,7 +165,7 @@ public class IDAStar implements Solver {
 
         List<SummarizedStep> summarizedPath = getSummarizedPath(solutionPathNode);
         this.lastSummarizedStepCount = summarizedPath.size();
-        printSummarizedSolution(summarizedPath);
+        // printSummarizedSolution(summarizedPath);
         
         return boardPath;
     }
@@ -270,43 +270,43 @@ public class IDAStar implements Solver {
         return summarizedSteps;
     }
 
-    private void printSummarizedSolution(List<SummarizedStep> summarizedPath) {
-        ensureTestDirectoryExists();
-        try (PrintWriter writer = new PrintWriter(new FileWriter("test/output/outputIDAStar.txt", false))) {
-            String algoHeader = getAlgorithmName() + " dengan heuristik " + getHeuristicName(heuristicType);
-            System.out.println("\n" + algoHeader);
-            writer.println(algoHeader);
-            writer.println("------------------------------------");
+    // private void printSummarizedSolution(List<SummarizedStep> summarizedPath) {
+    //     ensureTestDirectoryExists();
+    //     try (PrintWriter writer = new PrintWriter(new FileWriter("test/output/outputIDAStar.txt", false))) {
+    //         String algoHeader = getAlgorithmName() + " dengan heuristik " + getHeuristicName(heuristicType);
+    //         System.out.println("\n" + algoHeader);
+    //         writer.println(algoHeader);
+    //         writer.println("------------------------------------");
 
-            int stepNumber = 1;
-            for (SummarizedStep step : summarizedPath) {
-                String stepDisplay = "Langkah " + stepNumber + ": " + step.getDisplay(getDirName(step.direction));
-                System.out.println(stepDisplay);
-                writer.println(stepDisplay);
+    //         int stepNumber = 1;
+    //         for (SummarizedStep step : summarizedPath) {
+    //             String stepDisplay = "Langkah " + stepNumber + ": " + step.getDisplay(getDirName(step.direction));
+    //             System.out.println(stepDisplay);
+    //             writer.println(stepDisplay);
 
-                step.boardState.print(); 
-                for (int r = 0; r < step.boardState.rows; r++) {
-                    for (int c = 0; c < step.boardState.cols; c++) {
-                        writer.print(step.boardState.grid[r][c] + (c == step.boardState.cols - 1 ? "" : " "));
-                    }
-                    writer.println();
-                }
-                System.out.println();
-                writer.println();
-                stepNumber++;
-            }
-            String summary = "Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).";
-            System.out.println(summary);
-            writer.println(summary);
+    //             step.boardState.print(); 
+    //             for (int r = 0; r < step.boardState.rows; r++) {
+    //                 for (int c = 0; c < step.boardState.cols; c++) {
+    //                     writer.print(step.boardState.grid[r][c] + (c == step.boardState.cols - 1 ? "" : " "));
+    //                 }
+    //                 writer.println();
+    //             }
+    //             System.out.println();
+    //             writer.println();
+    //             stepNumber++;
+    //         }
+    //         String summary = "Solusi ditemukan dalam " + summarizedPath.size() + " langkah (ringkas).";
+    //         System.out.println(summary);
+    //         writer.println(summary);
 
-            String nodesExploredStr = "Total Node yang dieksplorasi: " + totalNodesExpanded;
-            System.out.println(nodesExploredStr);
-            writer.println(nodesExploredStr);
+    //         String nodesExploredStr = "Total Node yang dieksplorasi: " + totalNodesExpanded;
+    //         System.out.println(nodesExploredStr);
+    //         writer.println(nodesExploredStr);
 
-        } catch (IOException e) {
-            System.err.println("Gagal menulis langkah solusi ke file outputIDAStar.txt: " + e.getMessage());
-        }
-    }
+    //     } catch (IOException e) {
+    //         System.err.println("Gagal menulis langkah solusi ke file outputIDAStar.txt: " + e.getMessage());
+    //     }
+    // }
     
     private boolean isGoalState(Board board) {
         if (board.primaryPiece == null || (board.exitRow == -1 && board.exitCol == -1)) return false;

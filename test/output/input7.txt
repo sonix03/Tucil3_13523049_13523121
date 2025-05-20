@@ -1,0 +1,39 @@
+Solusi disimpan dari file input: input7.txt
+Algoritma: Uniform Cost Search
+------------------------------------------
+Initial Board:
+A A B . . F
+. . B C D F
+G . P C D F
+G H P I I I
+G H J J . .
+L L . M M .
+. . K . . .
+------------------------------------------
+Board setelah Langkah 1:
+A A B . . F
+. . B C D F
+G . P C D F
+G H P I I I
+G H . J J .
+L L . M M .
+. . K . . .
+------------------------------------------
+Board setelah Langkah 2:
+A A B . . F
+. . B C D F
+G . . C D F
+G H P I I I
+G H P J J .
+L L . M M .
+. . K . . .
+------------------------------------------
+Board setelah Langkah 3:
+A A B . . F
+. . B C D F
+G . . C D F
+G H . I I I
+G H P J J .
+L L P M M .
+. . K . . .
+------------------------------------------

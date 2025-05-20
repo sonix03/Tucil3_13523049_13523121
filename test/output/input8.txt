@@ -1,0 +1,40 @@
+Solusi disimpan dari file input: input8.txt
+Algoritma: IDA*
+Heuristik: Manhattan
+------------------------------------------
+Initial Board:
+. . K . . .
+A A B B . F
+. . . C D F
+G . P C D F
+G H P I I I
+G H J J . .
+L L . M M .
+------------------------------------------
+Board setelah Langkah 1:
+. . K . . .
+A A B B . F
+. . P C D F
+G . P C D F
+G H . I I I
+G H J J . .
+L L . M M .
+------------------------------------------
+Board setelah Langkah 2:
+. . K . . .
+A A . B B F
+. . P C D F
+G . P C D F
+G H . I I I
+G H J J . .
+L L . M M .
+------------------------------------------
+Board setelah Langkah 3:
+. . K . . .
+A A P B B F
+. . P C D F
+G . . C D F
+G H . I I I
+G H J J . .
+L L . M M .
+------------------------------------------
