@@ -84,7 +84,7 @@ java -cp bin MainGUI
 
 ---
 
-## 👤 Author
+## Author
 
 Program ini dibuat oleh:
 
